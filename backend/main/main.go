@@ -28,6 +28,7 @@ func main() {
 		return c.SendString("API is running...")
 	})
 	app.Post("/register", services.RegisterHandler)
+	app.Post("/login", services.LoginHandler)
 
 	if err := app.Listen(":8000"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

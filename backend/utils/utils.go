@@ -3,13 +3,23 @@ package utils
 import (
 	"log"
 	"os"
+	"strconv"
+	"time"
 
 	"fmt"
 
+	"github.com/aman1117/backend/models"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+type Claims struct {
+	UserID   uint   `json:"user_id"`
+	Username string `json:"username"`
+	jwt.RegisteredClaims
+}
 
 func GetDB() *gorm.DB {
 	err := godotenv.Load()
@@ -31,4 +41,26 @@ func GetDB() *gorm.DB {
 
 func GetFromEnv(key string) string {
 	return os.Getenv(key)
+}
+
+func GenerateToken(user *models.User) (string, time.Time, error) {
+	now := time.Now()
+	ttl, err := strconv.Atoi(GetFromEnv("TTL_ACCESS_TOKEN"))
+	if err != nil {
+		return "", time.Time{}, err
+	}
+	exp := now.Add(time.Duration(ttl) * time.Hour)
+
+	claims := &Claims{
+		UserID:   user.ID,
+		Username: user.Username,
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(exp),
+			IssuedAt:  jwt.NewNumericDate(now),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signed, err := token.SignedString([]byte(GetFromEnv("JWT_SECRET")))
+	return signed, exp, err
 }

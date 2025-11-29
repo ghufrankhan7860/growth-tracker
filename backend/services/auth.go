@@ -1,11 +1,23 @@
 package services
 
-import "github.com/gofiber/fiber/v2"
+import (
+	"strconv"
+	"time"
+
+	"github.com/aman1117/backend/utils"
+	"github.com/gofiber/fiber/v2"
+	"golang.org/x/crypto/bcrypt"
+)
 
 type registerRequest struct {
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Password string `json:"password"`
+}
+
+type loginRequest struct {
+	Identifier string `json:"identifier"`
+	Password   string `json:"password"`
 }
 
 func RegisterHandler(c *fiber.Ctx) error {
@@ -43,6 +55,71 @@ func RegisterHandler(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "User created successfully.",
+	})
+
+}
+
+func LoginHandler(c *fiber.Ctx) error {
+	var body loginRequest
+
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Invalid request body",
+		})
+	}
+
+	if body.Identifier == "" || body.Password == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "All fields are required",
+		})
+	}
+
+	user, err := GetUserByIdentifier(body.Identifier)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Database Error",
+		})
+	}
+
+	if user == nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Invalid credentials",
+		})
+	}
+
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(body.Password)); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Invalid password",
+		})
+	}
+
+	token, exp, err := utils.GenerateToken(user)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Failed to generate token",
+		})
+	}
+	ttl, err := strconv.Atoi(utils.GetFromEnv("TTL_ACCESS_TOKEN"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Failed to generate token",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success":      true,
+		"access_token": token,
+		"token_type":   "Bearer",
+		"expires_at":   exp.UTC().Format(time.RFC3339),
+		"expires_in":   int(ttl * 3600),
 	})
 
 }
