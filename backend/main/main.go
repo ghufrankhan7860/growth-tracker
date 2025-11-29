@@ -30,7 +30,7 @@ func main() {
 	app.Post("/register", services.RegisterHandler)
 	app.Post("/login", services.LoginHandler)
 
-	app.Get("/protected", services.AuthMiddleware, services.ProtectedHandler)
+	app.Post("/create-activity", services.AuthMiddleware, services.CreateActivityHandler)
 
 	port := utils.GetFromEnv("PORT")
 	if port == "" {
