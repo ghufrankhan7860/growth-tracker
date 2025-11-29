@@ -25,7 +25,7 @@ type Claims struct {
 func GetDB() *gorm.DB {
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("err loading: %v", err)
+		log.Println("no .env file found, using environment only")
 	}
 	username := GetFromEnv("DB_USERNAME")
 	password := GetFromEnv("DB_PASSWORD")
