@@ -30,6 +30,8 @@ func main() {
 	app.Post("/register", services.RegisterHandler)
 	app.Post("/login", services.LoginHandler)
 
+	app.Get("/protected", services.AuthMiddleware, services.ProtectedHandler)
+
 	port := utils.GetFromEnv("PORT")
 	if port == "" {
 		port = "8000"

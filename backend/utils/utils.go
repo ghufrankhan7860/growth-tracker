@@ -50,7 +50,7 @@ func GenerateToken(user *models.User) (string, time.Time, error) {
 	if err != nil {
 		return "", time.Time{}, err
 	}
-	exp := now.Add(time.Duration(ttl) * time.Hour)
+	exp := now.Add(time.Duration(ttl) * time.Minute)
 
 	claims := &Claims{
 		UserID:   user.ID,
@@ -68,4 +68,25 @@ func GenerateToken(user *models.User) (string, time.Time, error) {
 	}
 	signed, err := token.SignedString([]byte(secretKey))
 	return signed, exp, err
+}
+
+func ParseToken(tokenStr string) (*Claims, error) {
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method")
+		}
+		return []byte(GetFromEnv("JWT_SECRET_KEY")), nil
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if !token.Valid {
+		return nil, fmt.Errorf("invalid token")
+	}
+
+	return claims, nil
 }

@@ -2,6 +2,7 @@ package services
 
 import (
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aman1117/backend/utils"
@@ -119,7 +120,52 @@ func LoginHandler(c *fiber.Ctx) error {
 		"access_token": token,
 		"token_type":   "Bearer",
 		"expires_at":   exp.UTC().Format(time.RFC3339),
-		"expires_in":   int(ttl * 3600),
+		"expires_in":   int(ttl * 60),
 	})
 
+}
+
+func AuthMiddleware(c *fiber.Ctx) error {
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"error":   "Missing Authorization Header",
+		})
+	}
+	const prefix = "Bearer "
+
+	if !strings.HasPrefix(authHeader, prefix) {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"error":   "Invalid Authorization Header",
+		})
+	}
+
+	tokenStr := strings.TrimSpace(authHeader[len(prefix):])
+
+	claims, err := utils.ParseToken(tokenStr)
+
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"error":   "Invalid token",
+		})
+	}
+
+	c.Locals("user_id", claims.UserID)
+	c.Locals("username", claims.Username)
+
+	return c.Next()
+
+}
+
+func ProtectedHandler(c *fiber.Ctx) error {
+	username, _ := c.Locals("username").(string)
+	userID, _ := c.Locals("user_id").(uint)
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success":  true,
+		"user_id":  userID,
+		"username": username,
+	})
 }
