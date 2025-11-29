@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"log"
 	"os"
 	"strconv"
@@ -61,6 +62,10 @@ func GenerateToken(user *models.User) (string, time.Time, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signed, err := token.SignedString([]byte(GetFromEnv("JWT_SECRET")))
+	secretKey := GetFromEnv("JWT_SECRET_KEY")
+	if secretKey == "" {
+		return "", time.Time{}, errors.New("JWT_SECRET_KEY is not set in environment variables")
+	}
+	signed, err := token.SignedString([]byte(secretKey))
 	return signed, exp, err
 }
