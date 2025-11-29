@@ -30,9 +30,13 @@ func main() {
 	app.Post("/register", services.RegisterHandler)
 	app.Post("/login", services.LoginHandler)
 
-	if err := app.Listen(":8000"); err != nil {
+	port := utils.GetFromEnv("PORT")
+	if port == "" {
+		port = "8000"
+	}
+	if err := app.Listen(port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	} else {
-		fmt.Println("Server is running at http://localhost:8000")
+		fmt.Println("Server is running at http://localhost:" + port)
 	}
 }
