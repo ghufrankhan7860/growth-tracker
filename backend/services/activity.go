@@ -65,8 +65,8 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 			"error":   "Invalid activity name",
 		})
 	}
-	const layout = "2006-01-02"
 
+	const layout = "2006-01-02"
 	date, err := time.Parse(layout, body.Date)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -74,61 +74,77 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 			"error":   "Invalid date format, use YYYY-MM-DD",
 		})
 	}
+	date = date.Truncate(24 * time.Hour)
+
 	db := utils.GetDB()
-	// find all the records for this person for current day.
-	todayActivities := []models.Activity{}
-	result := db.Where("user_id = ? AND date(created_at) = ?", c.Locals("user_id").(uint), date).Find(&todayActivities)
+	userID := c.Locals("user_id").(uint)
+
+	var dayActivities []models.Activity
+	result := db.
+		Where("user_id = ? AND activity_date = ?", userID, date).
+		Find(&dayActivities)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"error":   "Failed to find activities",
 		})
 	}
-	isPresent := false
-	var totalHours float32 = 0
-	if len(todayActivities) > 0 {
-		for _, activity := range todayActivities {
-			totalHours += activity.DurationHours
-		}
-		if totalHours+body.Hours > 24 {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"error":   "Total hours cannot be more than 24",
-			})
-		}
-		for _, activity := range todayActivities {
-			if activity.Name == models.ActivityName(body.Activity) {
-				isPresent = true
-				activity.DurationHours = body.Hours
-				result = db.Save(&activity)
-				if result.Error != nil {
-					return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-						"success": false,
-						"error":   "Failed to update activity",
-					})
-				}
-				break
-			}
+
+	var (
+		totalHours      float32
+		existing        *models.Activity
+		activityNameVal = models.ActivityName(body.Activity)
+	)
+
+	for i := range dayActivities {
+		a := &dayActivities[i]
+		totalHours += a.DurationHours
+
+		if a.Name == activityNameVal {
+			existing = a
 		}
 	}
-	if !isPresent {
-		activity := models.Activity{
-			UserID:        c.Locals("user_id").(uint),
-			Name:          models.ActivityName(body.Activity),
-			DurationHours: body.Hours,
-		}
-		result = db.Create(&activity)
+
+	var newTotal float32
+	if existing != nil {
+		newTotal = totalHours - existing.DurationHours + body.Hours
+	} else {
+		newTotal = totalHours + body.Hours
 	}
-	if result.Error != nil {
+
+	if newTotal > 24 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
-			"error":   "Failed to create activity",
+			"error":   "Total hours cannot be more than 24",
 		})
+	}
+
+	if existing != nil {
+		existing.DurationHours = body.Hours
+		if err := db.Save(existing).Error; err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"success": false,
+				"error":   "Failed to update activity",
+			})
+		}
+	} else {
+		activity := models.Activity{
+			UserID:        userID,
+			Name:          activityNameVal,
+			DurationHours: body.Hours,
+			ActivityDate:  date,
+		}
+		if err := db.Create(&activity).Error; err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"success": false,
+				"error":   "Failed to create activity",
+			})
+		}
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		"message": "Activity created successfully",
+		"message": "Activity updated successfully",
 	})
 }
 
@@ -143,6 +159,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 
 	const layout = "2006-01-02"
 
+	// Parse start_date (YYYY-MM-DD)
 	startDate, err := time.Parse(layout, body.StartDate)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -151,6 +168,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	// Parse end_date (YYYY-MM-DD)
 	endDate, err := time.Parse(layout, body.EndDate)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -167,21 +185,24 @@ func GetActivityHandler(c *fiber.Ctx) error {
 	}
 
 	db := utils.GetDB()
-	activities := []models.Activity{}
-	user := models.User{}
-	result := db.Where("username = ?", body.Username).Find(&user)
-	if result.Error != nil {
+
+	// Find user by username
+	var user models.User
+	if err := db.Where("username = ?", body.Username).First(&user).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"error":   "Failed to find user",
 		})
 	}
-	result = db.Where(
-		"user_id = ? AND (created_at AT TIME ZONE 'Asia/Kolkata')::date BETWEEN ? AND ?",
-		user.ID, startDate, endDate,
-	).Find(&activities)
 
-	if result.Error != nil {
+	// Fetch activities using activity_date (DATE column)
+	var activities []models.Activity
+	if err := db.Where(
+		"user_id = ? AND activity_date BETWEEN ? AND ?",
+		user.ID,
+		startDate,
+		endDate,
+	).Find(&activities).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"error":   "Failed to find activities",
@@ -190,8 +211,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
-		// select only name and duration
-		"data": ToActivityDTOs(activities),
+		"data":    ToActivityDTOs(activities), // only name + duration etc.
 	})
 }
 
