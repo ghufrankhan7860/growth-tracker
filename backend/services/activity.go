@@ -26,13 +26,6 @@ type GetActivityRequest struct {
 	EndDate   string `json:"end_date"`
 }
 
-func UpdateActivityHandler(c *fiber.Ctx) error {
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"success": true,
-		"message": "Activity updated successfully.",
-	})
-}
-
 func CreateActivityHandler(c *fiber.Ctx) error {
 	var body ActivityRequest
 	if err := c.BodyParser(&body); err != nil {
