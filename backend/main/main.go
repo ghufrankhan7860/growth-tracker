@@ -31,6 +31,7 @@ func main() {
 	app.Post("/login", services.LoginHandler)
 
 	app.Post("/create-activity", services.AuthMiddleware, services.CreateActivityHandler)
+	app.Post("/get-activities", services.AuthMiddleware, services.GetActivityHandler)
 
 	port := utils.GetFromEnv("PORT")
 	if port == "" {
