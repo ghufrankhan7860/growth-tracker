@@ -8,6 +8,7 @@ import (
 	"github.com/aman1117/backend/services"
 	"github.com/aman1117/backend/utils"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 )
 
 func main() {
@@ -23,6 +24,13 @@ func main() {
 	fmt.Println("DB Migrations Successful")
 
 	app := fiber.New()
+	app.Use(cors.New(cors.Config{
+		AllowOrigins:     "*",   // allow all origins
+		AllowMethods:     "*",   // allow all HTTP methods
+		AllowHeaders:     "*",   // allow all headers
+		ExposeHeaders:    "*",   // optional: expose all headers
+		AllowCredentials: false, // set true only if you really need cookies/auth headers
+	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
 		return c.SendString("API is running...")
