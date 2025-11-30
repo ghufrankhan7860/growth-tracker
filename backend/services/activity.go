@@ -216,7 +216,7 @@ func GetUsersHandler(c *fiber.Ctx) error {
 	db := utils.GetDB()
 	users := []models.User{}
 	// find user by username with ILIKE
-	result := db.Where("username ILIKE ?", body.Username+"%").Find(&users)
+	result := db.Where("username ILIKE ?", "%"+body.Username+"%").Find(&users)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
