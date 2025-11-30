@@ -35,7 +35,7 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	if body.Username == "" || body.Activity == "" || body.Hours <= 0 {
+	if body.Username == "" || body.Activity == "" || body.Hours < 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
 			"error":   "Invalid request body",
@@ -67,7 +67,17 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 		})
 	}
 	isPresent := false
+	var totalHours float32 = 0
 	if len(todayActivities) > 0 {
+		for _, activity := range todayActivities {
+			totalHours += activity.DurationHours
+		}
+		if totalHours+body.Hours > 24 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"success": false,
+				"error":   "Total hours cannot be more than 24",
+			})
+		}
 		for _, activity := range todayActivities {
 			if activity.Name == models.ActivityName(body.Activity) {
 				isPresent = true
