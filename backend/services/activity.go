@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aman1117/backend/models"
@@ -177,7 +176,6 @@ func GetActivityHandler(c *fiber.Ctx) error {
 			"error":   "Failed to find user",
 		})
 	}
-	fmt.Println(user.ID)
 	result = db.Where("user_id = ? AND date(created_at) BETWEEN ? AND ?", user.ID, startDate, endDate).Find(&activities)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
