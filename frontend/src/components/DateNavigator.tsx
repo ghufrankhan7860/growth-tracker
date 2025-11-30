@@ -28,7 +28,7 @@ export const DateNavigator: React.FC<DateNavigatorProps> = ({
             <button onClick={onPrev} className="btn-outline" style={{ padding: '0.5rem', border: 'none' }}>
                 <ChevronLeft size={24} />
             </button>
-            <h2 style={{ fontSize: '1.1rem', textAlign: 'center' }}>{formatDate(currentDate)}</h2>
+            <h2 style={{ fontSize: '1.1rem', textAlign: 'center' }}>{formatDate(currentDate).toUpperCase()}</h2>
             <button
                 onClick={onNext}
                 disabled={isNextDisabled}

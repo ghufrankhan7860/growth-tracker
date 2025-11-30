@@ -143,8 +143,6 @@ export const Dashboard: React.FC = () => {
                     display: 'grid',
                     gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
                     gap: '0',
-                    borderTop: '1px solid var(--border)',
-                    borderLeft: '1px solid var(--border)',
                     backgroundColor: 'var(--bg-secondary)'
                 }}>
                     {Array.from({ length: 9 }).map((_, i) => (

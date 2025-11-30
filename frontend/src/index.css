@@ -13,7 +13,7 @@
   /* Yellow 200 */
   --error: #ef4444;
   --success: #22c55e;
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-sans: 'Merriweather', serif;
 }
 
 * {
@@ -230,8 +230,8 @@ h3 {
 }
 
 .skeleton {
-  background-color: var(--border);
-  /* Simple solid color */
+  background-color: rgba(254, 240, 138, 0.4);
+  /* Faded Yellow 200 */
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   border-radius: 0;
   /* Match tile style */
