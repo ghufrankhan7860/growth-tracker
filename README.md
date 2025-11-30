@@ -143,6 +143,7 @@ Response:
 - [x] One can see others activities also.
 - [x] Enforce 24hr total rule for activities
 - [ ] CronJob to set activity hours to 0 at 12 AM for all users.
+- [x] Change UTC to IST everywhere
 - [ ] Charts, Targets, Streaks
 - [ ] Weekly and Monthly activity summary.
 - [ ] Make code structure as done by professional dev.

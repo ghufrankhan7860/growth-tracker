@@ -176,7 +176,11 @@ func GetActivityHandler(c *fiber.Ctx) error {
 			"error":   "Failed to find user",
 		})
 	}
-	result = db.Where("user_id = ? AND date(created_at) BETWEEN ? AND ?", user.ID, startDate, endDate).Find(&activities)
+	result = db.Where(
+		"user_id = ? AND (created_at AT TIME ZONE 'Asia/Kolkata')::date BETWEEN ? AND ?",
+		user.ID, startDate, endDate,
+	).Find(&activities)
+
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
