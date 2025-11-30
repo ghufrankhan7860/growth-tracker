@@ -41,6 +41,16 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
             return;
         }
 
+        // Check if it's a multiple of 0.25
+        // Multiply by 4 and check if it's an integer (roughly) to avoid float precision issues
+        // Or string check?
+        // Let's use a small epsilon for float comparison or just simple math
+        const remainder = (numHours * 100) % 25;
+        if (remainder !== 0) {
+            setError('Hours must be in increments of 0.25 (e.g., 0.25, 0.5, 0.75)');
+            return;
+        }
+
         setLoading(true);
         try {
             await onSave(numHours);
@@ -94,13 +104,13 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         <label className="input-label">Duration (Hours)</label>
                         <input
                             type="number"
-                            step="0.1"
+                            step="0.25"
                             min="0"
                             max="24"
                             className="input-field"
                             value={hours}
                             onChange={(e) => setHours(e.target.value)}
-                            placeholder="e.g. 1.5"
+                            placeholder="e.g. 0.25"
                             autoFocus
                         />
                     </div>
