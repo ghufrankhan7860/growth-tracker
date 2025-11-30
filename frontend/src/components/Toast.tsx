@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { CheckCircle, AlertCircle, X } from 'lucide-react';
 
 interface ToastProps {
@@ -22,7 +23,7 @@ export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
         setTimeout(onClose, 300); // Wait for animation
     };
 
-    return (
+    return ReactDOM.createPortal(
         <div
             className={isExiting ? 'toast-exit' : 'toast-enter'}
             style={{
@@ -35,7 +36,7 @@ export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
                 padding: '0.75rem 1rem',
                 borderRadius: '0',
                 boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
-                zIndex: 200,
+                zIndex: 9999, // High z-index
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.75rem',
@@ -62,6 +63,7 @@ export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
             >
                 <X size={16} />
             </button>
-        </div>
+        </div>,
+        document.body
     );
 };
