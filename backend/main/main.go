@@ -22,7 +22,7 @@ func main() {
 		log.Fatalf("DB connection failed: %v", err)
 	}
 
-	if err := db.AutoMigrate(&models.User{}, &models.Activity{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.Activity{}, &models.Streak{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
 	fmt.Println("DB Migrations Successful")
@@ -68,6 +68,8 @@ func main() {
 
 	app.Post("/create-activity", services.AuthMiddleware, services.CreateActivityHandler)
 	app.Post("/get-activities", services.AuthMiddleware, services.GetActivityHandler)
+
+	app.Post("/get-streak", services.AuthMiddleware, services.GetStreakHandler)
 
 	port := utils.GetFromEnv("PORT")
 	if port == "" {

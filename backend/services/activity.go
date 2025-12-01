@@ -128,6 +128,14 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 				"error":   "Failed to update activity",
 			})
 		}
+
+		err := AddStreak(userID, date)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"success": false,
+				"error":   err.Error(),
+			})
+		}
 	} else {
 		activity := models.Activity{
 			UserID:        userID,
@@ -139,6 +147,14 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success": false,
 				"error":   "Failed to create activity",
+			})
+		}
+
+		err := AddStreak(userID, date)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"success": false,
+				"error":   err.Error(),
 			})
 		}
 	}
