@@ -56,14 +56,15 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 		return nil
 	}
 
+	previousStreak := models.Streak{}
 	_ = db.
 		Where("user_id = ?", userID).
 		Order("activity_date DESC").
 		Offset(1).
 		Limit(1).
-		Find(&streak)
-
-	if streak.ID != 0 {
+		Find(&previousStreak)
+	current := previousStreak.Current
+	if previousStreak.ID != 0 {
 		// find streak of current date and update it
 		streakTouUpdate := models.Streak{}
 		result = db.Where("user_id = ? AND activity_date = ?", userID, date).First(&streakTouUpdate)
@@ -73,7 +74,7 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 		if streakTouUpdate.Current != 0 {
 			return nil
 		}
-		streakTouUpdate.Current = streak.Current + 1
+		streakTouUpdate.Current = current + 1
 		streakTouUpdate.Longest = max(streak.Longest, streakTouUpdate.Current)
 		if err := db.Save(&streakTouUpdate).Error; err != nil {
 			return err
@@ -92,7 +93,7 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 		}
 		streak := models.Streak{
 			UserID:       userID,
-			Current:      1,
+			Current:      current + 1,
 			Longest:      1,
 			ActivityDate: date,
 		}
