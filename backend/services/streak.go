@@ -1,7 +1,6 @@
 package services
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/aman1117/backend/models"
@@ -40,7 +39,6 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 	if result.Error != nil {
 		return result.Error
 	}
-	fmt.Println(streak)
 	if isCron {
 		longest := 0
 		if result.RowsAffected > 0 {
