@@ -70,8 +70,6 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 			return err
 		}
 		return nil
-	} else {
-		return nil
 	}
 	return nil
 }
