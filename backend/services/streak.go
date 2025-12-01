@@ -36,21 +36,26 @@ func AddStreak(userID uint, date time.Time) error {
 		}
 	}
 	if result.RowsAffected > 0 {
-		// if activity date found >= date return nil
-		if streak.ActivityDate == date {
-			return nil
-		}
 		streakToInsert := models.Streak{}
-		if streak.ActivityDate != date.Add(-24*time.Hour) {
-			streakToInsert.Current = 1
-		} else {
+		if streak.ActivityDate == date.Add(-24*time.Hour) {
 			streakToInsert.Current = streak.Current + 1
+		} else if streak.ActivityDate == date {
+			if streakToInsert.Current == 1 {
+				return nil
+			}
+			streakToInsert.Current = 1
 		}
 		streakToInsert.ActivityDate = date
 		streakToInsert.Longest = max(streak.Longest, streakToInsert.Current)
 		streakToInsert.UserID = userID
-		if err := db.Create(&streakToInsert).Error; err != nil {
-			return err
+		if streak.ActivityDate == date {
+			if err := db.Save(&streakToInsert).Error; err != nil {
+				return err
+			}
+		} else {
+			if err := db.Create(&streakToInsert).Error; err != nil {
+				return err
+			}
 		}
 	} else {
 		streak := models.Streak{
