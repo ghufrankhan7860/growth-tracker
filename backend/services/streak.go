@@ -1,12 +1,12 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/aman1117/backend/models"
 	"github.com/aman1117/backend/utils"
 	"github.com/gofiber/fiber/v2"
-	"gorm.io/gorm"
 )
 
 type GetStreakRequest struct {
@@ -30,14 +30,17 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 	}
 	db := utils.GetDB()
 	streak := models.Streak{}
-	result := db.Where("user_id = ?", userID).Order("activity_date DESC").First(&streak)
+	result := db.
+		Where("user_id = ?", userID).
+		Order("activity_date DESC").
+		Offset(1).
+		Limit(1).
+		Find(&streak)
 
 	if result.Error != nil {
-		if result.Error != gorm.ErrRecordNotFound {
-			return result.Error
-		}
+		return result.Error
 	}
-
+	fmt.Println(streak)
 	if isCron {
 		longest := 0
 		if result.RowsAffected > 0 {
@@ -54,39 +57,21 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 		}
 		return nil
 	}
-
-	if result.RowsAffected > 0 {
-		streakToInsert := models.Streak{}
-		if streak.ActivityDate == date.Add(-24*time.Hour) {
-			streakToInsert.Current = streak.Current + 1
-		} else if streak.ActivityDate == date {
-			if streakToInsert.Current == 1 {
-				return nil
-			}
-			streakToInsert.Current = 1
+	if streak.ID != 0 {
+		// find streak of current date and update it
+		streakTouUpdate := models.Streak{}
+		result = db.Where("user_id = ? AND activity_date = ?", userID, date).First(&streakTouUpdate)
+		if result.Error != nil {
+			return result.Error
 		}
-		streakToInsert.ActivityDate = date
-		streakToInsert.Longest = max(streak.Longest, streakToInsert.Current)
-		streakToInsert.UserID = userID
-		if streak.ActivityDate == date {
-			if err := db.Save(&streakToInsert).Error; err != nil {
-				return err
-			}
-		} else {
-			if err := db.Create(&streakToInsert).Error; err != nil {
-				return err
-			}
-		}
-	} else {
-		streak := models.Streak{
-			UserID:       userID,
-			Current:      1,
-			Longest:      1,
-			ActivityDate: date,
-		}
-		if err := db.Create(&streak).Error; err != nil {
+		streakTouUpdate.Current = streak.Current + 1
+		streakTouUpdate.Longest = max(streak.Longest, streakTouUpdate.Current)
+		if err := db.Save(&streakTouUpdate).Error; err != nil {
 			return err
 		}
+		return nil
+	} else {
+		return nil
 	}
 	return nil
 }
