@@ -131,3 +131,7 @@ func RunDailyJob(ctx context.Context) error {
 
 	return nil
 }
+
+func CronJob(ctx context.Context) error {
+	return nil
+}
