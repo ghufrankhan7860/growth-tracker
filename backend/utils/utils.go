@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"context"
 	"errors"
 	"log"
 	"os"
@@ -90,48 +89,4 @@ func ParseToken(tokenStr string) (*Claims, error) {
 	}
 
 	return claims, nil
-}
-
-func RunDailyJob(ctx context.Context) error {
-	db := GetDB().WithContext(ctx)
-
-	var users []models.User
-	if err := db.Find(&users).Error; err != nil {
-		return err
-	}
-
-	// Compute today's date in IST once
-	loc, _ := time.LoadLocation("Asia/Kolkata")
-	nowIST := time.Now().In(loc)
-	todayIST := time.Date(
-		nowIST.Year(),
-		nowIST.Month(),
-		nowIST.Day(),
-		0, 0, 0, 0,
-		loc,
-	)
-	fmt.Println(todayIST)
-	for _, user := range users {
-		for _, activity := range models.ActivityNames {
-			var activityModel models.Activity
-
-			if err := db.
-				Where("user_id = ? AND name = ? AND activity_date = ?", user.ID, activity, todayIST).
-				Attrs(models.Activity{
-					UserID:        user.ID,
-					Name:          activity,
-					DurationHours: 0,
-					ActivityDate:  todayIST, // <- IMPORTANT
-				}).
-				FirstOrCreate(&activityModel).Error; err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func CronJob(ctx context.Context) error {
-	return nil
 }

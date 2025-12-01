@@ -129,7 +129,7 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 			})
 		}
 
-		err := AddStreak(userID, date)
+		err := AddStreak(userID, date, false)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success": false,
@@ -150,7 +150,7 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 			})
 		}
 
-		err := AddStreak(userID, date)
+		err := AddStreak(userID, date, false)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success": false,

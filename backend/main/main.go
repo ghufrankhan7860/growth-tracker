@@ -37,7 +37,7 @@ func main() {
 		cron.WithSeconds(), // allows specifying seconds in the spec
 	)
 	_, err = c.AddFunc("0 0 0 * * *", func() {
-		if err := utils.CronJob(context.Background()); err != nil {
+		if err := services.CronJob(context.Background()); err != nil {
 			log.Printf("daily job failed: %v", err)
 		} else {
 			log.Println("daily job completed successfully")

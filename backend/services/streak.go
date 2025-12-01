@@ -21,8 +21,10 @@ type StreakDTO struct {
 	Date    string `json:"date"`
 }
 
-func AddStreak(userID uint, date time.Time) error {
-	today := time.Now().Truncate(24 * time.Hour)
+func AddStreak(userID uint, date time.Time, isCron bool) error {
+	now := time.Now().In(date.Location())
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, date.Location())
+
 	if date.Before(today) {
 		return nil
 	}
@@ -35,6 +37,24 @@ func AddStreak(userID uint, date time.Time) error {
 			return result.Error
 		}
 	}
+
+	if isCron {
+		longest := 0
+		if result.RowsAffected > 0 {
+			longest = streak.Longest
+		}
+		streak := models.Streak{
+			UserID:       userID,
+			Current:      0,
+			Longest:      longest,
+			ActivityDate: date,
+		}
+		if err := db.Create(&streak).Error; err != nil {
+			return err
+		}
+		return nil
+	}
+
 	if result.RowsAffected > 0 {
 		streakToInsert := models.Streak{}
 		if streak.ActivityDate == date.Add(-24*time.Hour) {
