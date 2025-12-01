@@ -7,6 +7,7 @@ import { DateNavigator } from './DateNavigator';
 import { ActivityTile } from './ActivityTile';
 import { ActivityModal } from './ActivityModal';
 import { Toast } from './Toast';
+import { StreakCard } from './StreakCard';
 import { useParams } from 'react-router-dom';
 import {
     Moon, BookOpen, Utensils, Users, Sparkles,
@@ -163,6 +164,11 @@ export const Dashboard: React.FC = () => {
                     Viewing {targetUsername}'s Dashboard
                 </div>
             )}
+
+            <StreakCard
+                username={targetUsername || ''}
+                date={formatDateForApi(currentDate)}
+            />
 
             <DateNavigator
                 currentDate={currentDate}
