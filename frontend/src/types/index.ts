@@ -40,6 +40,7 @@ export const ACTIVITY_NAMES = [
     "errand",
     "rest",
     "entertainment",
+    "office",
 ] as const;
 
 export type ActivityName = typeof ACTIVITY_NAMES[number];

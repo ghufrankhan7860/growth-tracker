@@ -11,7 +11,7 @@ import { useParams } from 'react-router-dom';
 import {
     Moon, BookOpen, Utensils, Users, Sparkles,
     Dumbbell, Film, Home, Coffee, Palette,
-    Plane, ShoppingBag, Sofa, Gamepad2
+    Plane, ShoppingBag, Sofa, Gamepad2, Briefcase
 } from 'lucide-react';
 
 // Activity Configuration Map
@@ -31,6 +31,7 @@ const ACTIVITY_CONFIG: Record<ActivityName, { icon: any, color: string }> = {
     errand: { icon: ShoppingBag, color: '#f97316' }, // Orange
     rest: { icon: Sofa, color: '#84cc16' }, // Lime
     entertainment: { icon: Gamepad2, color: '#a855f7' }, // Purple
+    office: { icon: Briefcase, color: '#0f766e' }, // Teal
 };
 
 export const Dashboard: React.FC = () => {

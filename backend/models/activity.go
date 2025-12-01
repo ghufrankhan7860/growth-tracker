@@ -25,6 +25,7 @@ const (
 	ActivityErrand        ActivityName = "errand"
 	ActivityRest          ActivityName = "rest"
 	ActivityEntertainment ActivityName = "entertainment"
+	ActivityOffice        ActivityName = "office"
 )
 
 var ActivityNames = []ActivityName{
@@ -43,6 +44,7 @@ var ActivityNames = []ActivityName{
 	ActivityErrand,
 	ActivityRest,
 	ActivityEntertainment,
+	ActivityOffice,
 }
 
 type Activity struct {
