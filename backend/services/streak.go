@@ -86,7 +86,15 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	date = date.Truncate(24 * time.Hour)
 	db := utils.GetDB()
 	streak := models.Streak{}
-	result := db.Where("user_id = ? AND activity_date = ?", c.Locals("user_id").(uint), date).Last(&streak)
+	user := models.User{}
+	result := db.Where("username = ?", body.Username).First(&user)
+	if result.Error != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Failed to find user",
+		})
+	}
+	result = db.Where("user_id = ? AND activity_date = ?", user.ID, date).Last(&streak)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
