@@ -62,7 +62,7 @@ func AddStreak(userID uint, date time.Time, isCron bool) error {
 		if result.Error != nil {
 			return result.Error
 		}
-		if streak.Current != 0 {
+		if streakTouUpdate.Current != 0 {
 			return nil
 		}
 		streakTouUpdate.Current = streak.Current + 1
