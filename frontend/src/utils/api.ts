@@ -1,5 +1,5 @@
-const API_URL = 'https://northern-mariellen-aman1117-e5652442.koyeb.app';
-// const API_URL = 'http://localhost:8000';
+// const API_URL = 'https://northern-mariellen-aman1117-e5652442.koyeb.app';
+const API_URL = 'http://localhost:8000';
 
 export const api = {
     async get(endpoint: string) {
@@ -33,5 +33,9 @@ export const api = {
             body: JSON.stringify(body),
         });
         return res.json();
+    },
+
+    async getInsights(username: string) {
+        return this.post('/get-insights', { username });
     }
 };

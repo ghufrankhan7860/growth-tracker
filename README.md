@@ -145,7 +145,10 @@ Response:
 - [x] CronJob to set activity hours to 0 at 12 AM for all users.
 - [x] Change UTC to IST everywhere
 - [x] Streaks
+- [x] send emails when streak breaks ( current is 0 for last day record)
+- [ ] Completed Hours out of 24hr
 - [ ] Notes for each activity
-- [ ] Charts, Targets
+- [ ] Drag Tiles
+- [ ] Zap logging integrate
 - [ ] Weekly and Monthly activity summary.
 - [ ] Make code structure as done by professional dev.

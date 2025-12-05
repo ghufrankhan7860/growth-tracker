@@ -71,6 +71,7 @@ func main() {
 
 	app.Post("/get-streak", services.AuthMiddleware, services.GetStreakHandler)
 
+	app.Post("/send-email", services.AuthMiddleware, services.SendEmailHandler)
 	port := utils.GetFromEnv("PORT")
 	if port == "" {
 		port = "8000"
