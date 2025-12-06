@@ -246,9 +246,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                             <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                                                 {result.username}
                                             </div>
-                                            <div style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-                                                {result.email}
-                                            </div>
+
                                         </div>
                                     </div>
                                 ))}
