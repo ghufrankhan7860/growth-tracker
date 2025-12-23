@@ -60,6 +60,7 @@ func main() {
 	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
+		fmt.Println("Health check endpoint hit")
 		return c.SendString("API is running...")
 	})
 	app.Post("/register", services.RegisterHandler)
