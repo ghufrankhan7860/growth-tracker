@@ -82,7 +82,19 @@ export const StreakCard: React.FC<StreakCardProps> = ({ username, date }) => {
             {showCurrentStreak && (
                 <>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Flame className="w-4 h-4" style={{ color: '#facc15' }} />
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                backgroundColor: 'rgba(250, 204, 21, 0.15)',
+                            }}
+                        >
+                            <Flame size={18} style={{ color: '#facc15' }} />
+                        </div>
                         <span style={{ fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap' }}>
                             Current Streak: {streak.current}
                         </span>
