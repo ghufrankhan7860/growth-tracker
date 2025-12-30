@@ -8,6 +8,7 @@ import { ActivityTile } from './ActivityTile';
 import { ActivityModal } from './ActivityModal';
 import { Toast } from './Toast';
 import { StreakCard } from './StreakCard';
+import { HoursSummary } from './HoursSummary';
 import { useParams } from 'react-router-dom';
 import {
     Moon, BookOpen, Utensils, Users, Sparkles,
@@ -176,6 +177,8 @@ export const Dashboard: React.FC = () => {
                 onNext={handleNextDay}
                 isNextDisabled={isNextDisabled()}
             />
+
+            <HoursSummary activities={activities} loading={loading} />
 
             {loading ? (
                 <div style={{

@@ -150,7 +150,6 @@ Response:
 - [ ] Micro Interactions
 - [x] Only show username in search card not email
 - [ ] Notes for each activity
-- [ ] Drag Tiles
 - [ ] Zap logging integrate
 - [ ] Weekly and Monthly activity summary.
 - [ ] Make code structure as done by professional dev.
