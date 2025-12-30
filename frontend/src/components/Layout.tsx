@@ -116,13 +116,23 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                             </button>
 
                             <div className="flex items-center gap-4">
-                                <span style={{
-                                    fontSize: '1rem',
-                                    fontWeight: 700,
-                                    color: 'var(--text-primary)'
-                                }}>
-                                    {user.username}
-                                </span>
+                                <div
+                                    style={{
+                                        width: '36px',
+                                        height: '36px',
+                                        borderRadius: '50%',
+                                        backgroundColor: 'rgba(66, 32, 6, 0.12)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontWeight: 700,
+                                        fontSize: '0.9rem',
+                                        color: 'var(--text-primary)',
+                                        textTransform: 'uppercase',
+                                    }}
+                                >
+                                    {user.username.charAt(0)}
+                                </div>
                                 <button
                                     onClick={handleLogout}
                                     className="btn-outline"
