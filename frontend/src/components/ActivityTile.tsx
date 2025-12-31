@@ -51,7 +51,6 @@ export const ActivityTile: React.FC<ActivityTileProps> = ({
         attributes,
         listeners,
         setNodeRef,
-        transform,
         transition,
     } = useSortable({ id: name, disabled: !isDraggable || !isSelected });
 
