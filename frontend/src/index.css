@@ -250,7 +250,7 @@ h3 {
 /* Toast Animation */
 @keyframes slideUpFade {
   from {
-    transform: translate(-50%, 100%);
+    transform: translate(-50%, -120%);
     opacity: 0;
   }
 
@@ -267,7 +267,7 @@ h3 {
   }
 
   to {
-    transform: translate(-50%, 100%);
+    transform: translate(-50%, -120%);
     opacity: 0;
   }
 }

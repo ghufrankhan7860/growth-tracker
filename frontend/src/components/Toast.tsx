@@ -28,7 +28,7 @@ export const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
             className={isExiting ? 'toast-exit' : 'toast-enter'}
             style={{
                 position: 'fixed',
-                bottom: '2rem',
+                top: '1rem',
                 left: '50%',
                 transform: 'translateX(-50%)',
                 backgroundColor: 'var(--bg-secondary)',
