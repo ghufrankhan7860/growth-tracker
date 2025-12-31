@@ -155,3 +155,5 @@ Response:
 - [ ] Make code structure as done by professional dev.
 - [ ] Make Profile private/public.
 - [ ] Reset Password
+- [ ] Custom Tile
+- [x] Dark Theme

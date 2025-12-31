@@ -14,7 +14,7 @@ export const HoursSummary: React.FC<HoursSummaryProps> = ({ activities, loading 
 
     const getStatusColor = () => {
         if (totalHours >= maxHours) return 'var(--success)';
-        if (totalHours >= 18) return '#eab308'; // Yellow
+        if (totalHours >= 18) return 'var(--accent)';
         return 'var(--text-secondary)';
     };
 
@@ -49,6 +49,7 @@ export const HoursSummary: React.FC<HoursSummaryProps> = ({ activities, loading 
                 display: 'flex',
                 alignItems: 'center',
                 gap: '1rem',
+                transition: 'background-color 0.3s ease, border-color 0.3s ease',
             }}
         >
             {/* Icon */}
@@ -59,9 +60,10 @@ export const HoursSummary: React.FC<HoursSummaryProps> = ({ activities, loading 
                     justifyContent: 'center',
                     width: '48px',
                     height: '48px',
-                    backgroundColor: `${getStatusColor()}15`,
+                    backgroundColor: 'var(--icon-bg-muted)',
                     borderRadius: '50%',
                     flexShrink: 0,
+                    transition: 'all 0.3s ease',
                 }}
             >
                 <StatusIcon size={24} color={getStatusColor()} />
@@ -105,9 +107,10 @@ export const HoursSummary: React.FC<HoursSummaryProps> = ({ activities, loading 
                     style={{
                         width: '100%',
                         height: '6px',
-                        backgroundColor: 'var(--border)',
+                        backgroundColor: 'var(--progress-track)',
                         borderRadius: '3px',
                         overflow: 'hidden',
+                        transition: 'background-color 0.3s ease',
                     }}
                 >
                     <div

@@ -1,19 +1,82 @@
 :root {
+  /* Light Theme - Warm Yellow */
   --bg-primary: #fefce8;
   /* Yellow 50 */
   --bg-secondary: #ffffff;
+  --bg-tertiary: #fef9c3;
+  /* Yellow 100 */
   --text-primary: #422006;
   /* Yellow/Amber 950 - warmer text */
   --text-secondary: #78350f;
   /* Amber 900 - warmer secondary */
+  --text-muted: #a16207;
+  /* Amber 700 */
   --accent: #eab308;
   /* Yellow 500 */
   --accent-hover: #ca8a04;
   --border: #fef08a;
   /* Yellow 200 */
+  --border-strong: #fde047;
+  /* Yellow 300 */
   --error: #ef4444;
   --success: #22c55e;
   --font-sans: 'Merriweather', serif;
+  
+  /* Header specific */
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --modal-overlay: rgba(0, 0, 0, 0.5);
+  --shadow-sm: rgba(0, 0, 0, 0.05);
+  --shadow-md: rgba(0, 0, 0, 0.1);
+  --avatar-bg: rgba(66, 32, 6, 0.12);
+  --skeleton-bg: rgba(254, 240, 138, 0.4);
+  
+  /* Progress bar specific */
+  --progress-track: #fef08a;
+  --icon-bg-muted: rgba(0, 0, 0, 0.05);
+  --logo-bg: #422006;
+  --logo-color: #ffffff;
+}
+
+/* Dark Theme - Warm Amber/Brown */
+[data-theme='dark'] {
+  --bg-primary: #1c1410;
+  /* Deep warm brown */
+  --bg-secondary: #251c14;
+  /* Slightly lighter brown */
+  --bg-tertiary: #322618;
+  /* Card backgrounds */
+  --text-primary: #fef3c7;
+  /* Amber 100 - warm cream */
+  --text-secondary: #fcd34d;
+  /* Amber 300 */
+  --text-muted: #d97706;
+  /* Amber 600 */
+  --accent: #f59e0b;
+  /* Amber 500 */
+  --accent-hover: #fbbf24;
+  /* Amber 400 */
+  --border: #3d3022;
+  /* Muted brown border */
+  --border-strong: #4d3d2a;
+  /* Stronger border */
+  --error: #f87171;
+  /* Red 400 */
+  --success: #4ade80;
+  /* Green 400 */
+  
+  /* Header specific */
+  --header-bg: rgba(28, 20, 16, 0.9);
+  --modal-overlay: rgba(0, 0, 0, 0.7);
+  --shadow-sm: rgba(0, 0, 0, 0.2);
+  --shadow-md: rgba(0, 0, 0, 0.3);
+  --avatar-bg: rgba(254, 243, 199, 0.12);
+  --skeleton-bg: rgba(68, 56, 31, 0.6);
+  
+  /* Progress bar specific */
+  --progress-track: #3d3022;
+  --icon-bg-muted: rgba(255, 255, 255, 0.08);
+  --logo-bg: #fef3c7;
+  --logo-color: #1c1410;
 }
 
 * {
@@ -28,6 +91,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 button {
@@ -230,9 +294,37 @@ h3 {
 }
 
 .skeleton {
-  background-color: rgba(254, 240, 138, 0.4);
-  /* Faded Yellow 200 */
+  background-color: var(--skeleton-bg);
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   border-radius: 0;
   /* Match tile style */
+}
+
+/* Theme Toggle Animation */
+.theme-toggle:hover {
+  border-color: var(--text-primary) !important;
+  background-color: var(--bg-tertiary) !important;
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+/* Smooth transitions for themed elements */
+.card,
+.input-field,
+.btn,
+.btn-outline,
+.btn-primary {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+/* Dark mode specific adjustments */
+[data-theme='dark'] .btn-primary {
+  background-color: var(--accent);
+  color: var(--bg-primary);
+}
+
+[data-theme='dark'] .btn-primary:hover {
+  background-color: var(--accent-hover);
 }

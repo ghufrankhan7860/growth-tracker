@@ -45,9 +45,9 @@ export const ActivityTile: React.FC<ActivityTileProps> = ({ name, hours, onClick
                     width: '52px',
                     height: '52px',
                     borderRadius: '50%',
-                    backgroundColor: isActive ? `${color}12` : 'var(--border)',
+                    backgroundColor: isActive ? `${color}20` : 'var(--icon-bg-muted)',
                     marginBottom: '0.5rem',
-                    transition: 'background-color 0.2s',
+                    transition: 'all 0.2s ease',
                 }}
             >
                 <Icon

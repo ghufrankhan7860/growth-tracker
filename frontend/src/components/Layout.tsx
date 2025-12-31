@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { LogOut, TrendingUp, Search, User as UserIcon, X } from 'lucide-react';
 import { api } from '../utils/api';
+import { ThemeToggle } from './ThemeToggle';
 
 interface SearchResult {
     id: number;
@@ -64,12 +65,13 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
             <header style={{
                 borderBottom: '1px solid var(--border)',
                 padding: '0.75rem 0',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent
+                backgroundColor: 'var(--header-bg)',
                 backdropFilter: 'blur(12px)', // Glassmorphism
                 WebkitBackdropFilter: 'blur(12px)',
                 position: 'sticky',
                 top: 0,
-                zIndex: 50
+                zIndex: 50,
+                transition: 'background-color 0.3s ease, border-color 0.3s ease'
             }}>
                 <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 1.5rem' }}>
                     <div
@@ -77,13 +79,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                         onClick={() => navigate('/')}
                     >
                         <div style={{
-                            background: 'var(--text-primary)',
-                            color: 'white',
+                            background: 'var(--logo-bg)',
+                            color: 'var(--logo-color)',
                             padding: '0.25rem',
                             borderRadius: '6px',
-                            display: 'flex'
+                            display: 'flex',
+                            transition: 'background-color 0.3s ease'
                         }}>
-                            <TrendingUp size={20} strokeWidth={2.5} />
+                            <TrendingUp size={20} strokeWidth={2.5} color="var(--logo-color)" />
                         </div>
                         <h1 style={{
                             fontSize: '1.125rem',
@@ -97,6 +100,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
                     {user && (
                         <div className="flex items-center gap-4">
+                            <ThemeToggle />
                             <button
                                 onClick={() => setIsSearchOpen(true)}
                                 className="btn-outline"
@@ -121,7 +125,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         width: '36px',
                                         height: '36px',
                                         borderRadius: '50%',
-                                        backgroundColor: 'rgba(66, 32, 6, 0.12)',
+                                        backgroundColor: 'var(--avatar-bg)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
@@ -129,6 +133,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         fontSize: '0.9rem',
                                         color: 'var(--text-primary)',
                                         textTransform: 'uppercase',
+                                        transition: 'background-color 0.3s ease'
                                     }}
                                 >
                                     {user.username.charAt(0)}
@@ -153,6 +158,11 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                             </div>
                         </div>
                     )}
+                    
+                    {/* Show theme toggle even when not logged in */}
+                    {!user && (
+                        <ThemeToggle />
+                    )}
                 </div>
             </header>
             <main style={{ flex: 1, paddingTop: '0.5rem' }}>
@@ -167,7 +177,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
+                    backgroundColor: 'var(--modal-overlay)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     justifyContent: 'center',
