@@ -1,161 +1,96 @@
-# Growth Tracker
+# Growth Tracker 🌱
 
-A personal growth tracking application backend built with Go, featuring user authentication and activity tracking capabilities.
+**Track every hour of your day. Build better habits. Grow intentionally.**
 
-## Overview
+Growth Tracker is a personal productivity app that helps you account for all 24 hours of your day. By tracking how you spend your time across different life activities, you gain insights into your daily patterns and build consistency through streaks.
 
-This project is a RESTful API backend for tracking personal growth activities. The backend provides secure user authentication using JWT tokens and is designed to support activity tracking features where users can log and monitor their daily activities.
+---
 
-## Tech Stack
+## What is Growth Tracker?
 
-- **Language**: Go 1.22.5
-- **Web Framework**: [Fiber v2](https://gofiber.io/) - Fast HTTP web framework
-- **Database**: PostgreSQL with [GORM](https://gorm.io/) ORM
-- **Authentication**: JWT (JSON Web Tokens) using `golang-jwt/jwt/v5`
-- **Password Hashing**: bcrypt via `golang.org/x/crypto`
-- **Environment Management**: `joho/godotenv`
+We all have the same 24 hours, but few of us know where they actually go. Growth Tracker solves this by letting you log your time across meaningful categories — sleep, study, work, family, fitness, and more.
 
-## Project Structure
+The goal is simple: **complete your day by logging all 24 hours**. Do it consistently, and watch your streak grow!
 
-```
-backend/
-├── main/
-│   └── main.go          # Application entry point, server setup, and route definitions
-├── models/
-│   └── user.go          # User data model with GORM tags
-├── services/
-│   ├── auth.go          # Authentication handlers (register, login, protected routes)
-│   └── db.go            # Database service functions (user creation, retrieval)
-├── utils/
-│   └── utils.go         # Utility functions (DB connection, JWT generation/parsing, env vars)
-├── go.mod               # Go module dependencies
-└── go.sum               # Dependency checksums
-```
+---
+
+## Screenshots
+
+### 📱 Dashboard - Dark & Light Mode
+
+<p align="center">
+  <img src="docs/screenshots/dashboard-dark.png" width="280" alt="Dashboard Dark Mode"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="docs/screenshots/dashboard-light.png" width="280" alt="Dashboard Light Mode"/>
+</p>
+
+The dashboard shows your daily progress at a glance:
+- **Date Navigator** — Browse through your past days
+- **Progress Bar** — See how many hours you've logged out of 24
+- **Streak Counter** — Your best streak for motivation
+- **Activity Grid** — Colorful tiles for each life category with logged hours
+
+### 🔍 User Search
+
+<p align="center">
+  <img src="docs/screenshots/search.png" width="280" alt="User Search"/>
+</p>
+
+Find and connect with other users to view their tracked days and get inspired by how others spend their time.
+
+### 🔐 Authentication - Light & Dark
+
+<p align="center">
+  <img src="docs/screenshots/auth-light.png" width="280" alt="Login Light Mode"/>
+  &nbsp;&nbsp;&nbsp;
+  <img src="docs/screenshots/auth-dark.png" width="280" alt="Login Dark Mode"/>
+</p>
+
+Clean, minimal login and registration screens with support for both light and dark themes.
+
+---
+
+## Activity Categories
+
+Track time across **16 life categories**:
+
+| Category | Category | Category | Category |
+|----------|----------|----------|----------|
+| 😴 Sleep | 📚 Study | 📖 Book Reading | 🍽️ Eating |
+| 👥 Friends | 💆 Grooming | 🏋️ Workout | 📱 Reels |
+| 🏠 Family | ☕ Idle | 🎨 Creative | ✈️ Travelling |
+| 🛒 Errand | 🛋️ Rest | 🎮 Entertainment | 💼 Office |
+
+---
 
 ## Features
 
-### Authentication System
-- **User Registration**: Create new user accounts with email, username, and password
-  - Email and username uniqueness validation
-  - Password minimum length requirement (8 characters)
-  - Secure password hashing with bcrypt
-- **User Login**: Authenticate users with email or username
-  - Returns JWT access token with expiration
-  - Bearer token authentication
-- **Protected Routes**: JWT middleware for securing endpoints
-  - Token validation and user context injection
+✨ **24-Hour Day Tracking** — Log activities until your day is complete  
+🔥 **Streak System** — Build consistency with daily streaks  
+🌗 **Dark & Light Mode** — Beautiful warm theme in both modes  
+📅 **Historical View** — Browse and edit past days  
+👥 **Social Features** — Search and view other users' progress  
+📱 **Cross-Platform** — Web app + Native Android app  
 
-### Database
-- PostgreSQL database connection with SSL
-- Automatic database migrations using GORM
-- User model with timestamps (created_at, updated_at)
-
-## API Endpoints
-
-| Method | Endpoint      | Description                    | Auth Required |
-|--------|---------------|--------------------------------|---------------|
-| GET    | `/`           | Health check endpoint          | No            |
-| POST   | `/register`   | Register a new user            | No            |
-| POST   | `/login`      | Login and get access token     | No            |
-| GET    | `/protected`  | Example protected endpoint     | Yes           |
-
-### Request/Response Examples
-
-**Register** (`POST /register`)
-```json
-{
-  "email": "user@example.com",
-  "username": "johndoe",
-  "password": "securepass123"
-}
-```
-
-**Login** (`POST /login`)
-```json
-{
-  "identifier": "user@example.com",  // or username
-  "password": "securepass123"
-}
-```
-
-Response:
-```json
-{
-  "success": true,
-  "access_token": "eyJhbGciOiJIUzI1NiIs...",
-  "token_type": "Bearer",
-  "expires_at": "2024-01-01T12:00:00Z",
-  "expires_in": 3600
-}
-```
-
-## Setup Instructions
-
-1. **Prerequisites**
-   - Go 1.22.5 or higher
-   - PostgreSQL database
-   - Environment variables configured (see below)
-
-2. **Install Dependencies**
-   ```bash
-   cd backend
-   go mod download
-   ```
-
-3. **Environment Variables**
-   Create a `.env` file in the `backend/` directory with:
-   ```env
-   DB_USERNAME=your_db_username
-   DB_PASSWORD=your_db_password
-   DB_HOST=your_db_host
-   DB_PORT=5432
-   DB_NAME=your_db_name
-   JWT_SECRET_KEY=your_secret_key_here
-   TTL_ACCESS_TOKEN=60  # Token expiration in minutes
-   PORT=8000            # Server port (optional, defaults to 8000)
-   ```
-
-4. **Run the Application**
-   ```bash
-   cd backend/main
-   go run main.go
-   ```
-   
-   The server will start at `http://localhost:8000` (or your configured PORT).
-
-## Database Schema
-
-### Users Table
-- `id` (uint, primary key)
-- `email` (string, unique, not null)
-- `username` (string, unique, not null)
-- `password_hash` (string, not null)
-- `created_at` (timestamp, auto-created)
-- `updated_at` (timestamp, auto-updated)
+---
 
 ## TODOs
 
-- [x] Design authentication database schema for the `users` table.
-- [x] Create an `activity` table to store activities for each day, with:
-  - Columns for each activity detail (name, type, duration, etc.)
-  - A foreign key `user_id` referencing the `users` table
-- [x] Add Add, Update, Get Logic for `activity` table
-- [x] One can see others activities also.
-- [x] Enforce 24hr total rule for activities
-- [x] CronJob to set activity hours to 0 at 12 AM for all users.
-- [x] Change UTC to IST everywhere
-- [x] Streaks
-- [x] send emails when streak breaks ( current is 0 for last day record)
-- [x] Completed Hours out of 24hr
-- [ ] Micro Interactions
-- [x] Only show username in search card not email
+- [ ] Add weekly and monthly analytics dashboard
+- [ ] Implement streak recovery (grace days)
+- [ ] Add activity reminders / notifications
+- [ ] Social features - follow users, leaderboards
+- [ ] Export data to CSV/PDF
+- [ ] iOS app
+- [ ] Widgets for Android home screen
+- [ ] Activity suggestions based on patterns
+- [ ] Goal setting per activity category
+- [ ] Integration with calendar apps
 - [ ] Notes for each activity
-- [ ] Zap logging integrate
-- [ ] Weekly and Monthly activity summary.
-- [ ] Make code structure as done by professional dev.
-- [ ] Make Profile private/public.
-- [ ] Reset Password
-- [ ] Custom Tile
+- [ ] Weekly and monthly activity summary
+- [ ] Make profile private/public option
+- [ ] Reset password functionality
+- [ ] Custom activity tiles
 - [x] Dark Theme
 - [ ] Reset Password/Username
 - [ ] Friends
