@@ -135,9 +135,11 @@ export const Dashboard: React.FC = () => {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [activities, setActivities] = useState<Record<string, number>>({});
     const [loading, setLoading] = useState(true);
-    const [configLoading, setConfigLoading] = useState(!hasLocalConfig());
-    const [tileOrder, setTileOrder] = useState<ActivityName[]>(loadTileOrder);
-    const [tileSizes, setTileSizes] = useState<Record<ActivityName, TileSize>>(loadTileSizes);
+    // Always show loading for other users, or check localStorage for own profile
+    const isViewingOther = routeUsername && routeUsername !== user?.username;
+    const [configLoading, setConfigLoading] = useState(isViewingOther ? true : !hasLocalConfig());
+    const [tileOrder, setTileOrder] = useState<ActivityName[]>(isViewingOther ? [...ACTIVITY_NAMES] : loadTileOrder);
+    const [tileSizes, setTileSizes] = useState<Record<ActivityName, TileSize>>(isViewingOther ? getDefaultTileSizes() : loadTileSizes);
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedTile, setSelectedTile] = useState<ActivityName | null>(null);
     const [activeDragId, setActiveDragId] = useState<ActivityName | null>(null);
@@ -245,17 +247,17 @@ export const Dashboard: React.FC = () => {
         fetchActivities();
     }, [fetchActivities]);
 
-    // Fetch tile config from backend if not in localStorage
+    // Fetch tile config from backend - always fetch
     useEffect(() => {
         const fetchTileConfig = async () => {
-            // If localStorage already has config, no need to fetch
-            if (hasLocalConfig()) {
-                setConfigLoading(false);
-                return;
-            }
-
+            setConfigLoading(true);
+            
             try {
-                const res = await api.get('/tile-config');
+                // Fetch config based on whose profile we're viewing
+                const res = isReadOnly && targetUsername
+                    ? await api.post('/tile-config/user', { username: targetUsername })
+                    : await api.get('/tile-config');
+                    
                 if (res.success && res.data) {
                     const { order, sizes } = res.data;
                     
@@ -264,25 +266,34 @@ export const Dashboard: React.FC = () => {
                         order.length === ACTIVITY_NAMES.length &&
                         ACTIVITY_NAMES.every((name: ActivityName) => order.includes(name))) {
                         setTileOrder(order);
-                        saveTileOrder(order);
+                        if (!isReadOnly) saveTileOrder(order);
+                    } else {
+                        setTileOrder([...ACTIVITY_NAMES]);
                     }
                     
                     // Apply sizes
                     if (sizes && typeof sizes === 'object') {
                         setTileSizes(sizes);
-                        saveTileSizes(sizes);
+                        if (!isReadOnly) saveTileSizes(sizes);
+                    } else {
+                        setTileSizes(getDefaultTileSizes());
                     }
+                } else {
+                    // No config - use defaults
+                    setTileOrder([...ACTIVITY_NAMES]);
+                    setTileSizes(getDefaultTileSizes());
                 }
             } catch (err) {
-                console.error('Failed to fetch tile config from backend', err);
-                // Use defaults - already loaded
+                console.error('Failed to fetch tile config', err);
+                setTileOrder([...ACTIVITY_NAMES]);
+                setTileSizes(getDefaultTileSizes());
             } finally {
                 setConfigLoading(false);
             }
         };
 
         fetchTileConfig();
-    }, []);
+    }, [isReadOnly, targetUsername]);
 
     // Save tile config to backend
     const saveTileConfigToBackend = async (order: ActivityName[], sizes: Record<ActivityName, TileSize>) => {

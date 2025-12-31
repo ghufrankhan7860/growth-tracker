@@ -89,6 +89,7 @@ func main() {
 
 	app.Get("/tile-config", services.AuthMiddleware, services.GetTileConfigHandler)
 	app.Post("/tile-config", services.AuthMiddleware, services.SaveTileConfigHandler)
+	app.Post("/tile-config/user", services.AuthMiddleware, services.GetTileConfigByUsernameHandler)
 
 	port := utils.GetFromEnv("PORT")
 	if port == "" {
