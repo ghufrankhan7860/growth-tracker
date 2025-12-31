@@ -1,0 +1,16 @@
+name: Keep Alive Ping
+
+on:
+  schedule:
+    # Every 4 minutes (before 5-min cooldown)
+    - cron: '*/4 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        run: |
+          curl -s https://growth-tracker-api.yellowwater-07aa7c55.centralindia.azurecontainerapps.io/
+          echo "Pinged at $(date)"
