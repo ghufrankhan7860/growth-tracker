@@ -248,7 +248,19 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
                 {isToday() && (
                     <>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <Flame size={18} color="#f59e0b" />
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    width: '28px',
+                                    height: '28px',
+                                    borderRadius: '50%',
+                                    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+                                }}
+                            >
+                                <Flame size={16} color="#f59e0b" />
+                            </div>
                             <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                                 {streak.current}
                             </span>
@@ -262,7 +274,19 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
                 )}
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Trophy size={16} color="var(--accent)" />
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            width: '28px',
+                            height: '28px',
+                            borderRadius: '50%',
+                            backgroundColor: 'rgba(234, 179, 8, 0.15)',
+                        }}
+                    >
+                        <Trophy size={14} color="var(--accent)" />
+                    </div>
                     <span style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                         {streak.longest}
                     </span>
