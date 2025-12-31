@@ -1,2 +1,7 @@
 **.env
+*.env
+neon.env
+msft.env
+deploy-azure.ps1
+diagnose/
 node_modules
