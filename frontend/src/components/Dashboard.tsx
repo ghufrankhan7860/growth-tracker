@@ -10,6 +10,7 @@ import { Toast } from './Toast';
 import { StreakCard } from './StreakCard';
 import { HoursSummary } from './HoursSummary';
 import { useParams } from 'react-router-dom';
+import { playActivitySound, playCompletionSound } from '../utils/sounds';
 import {
     Moon, BookOpen, Utensils, Users, Sparkles,
     Dumbbell, Film, Home, Coffee, Palette,
@@ -134,7 +135,22 @@ export const Dashboard: React.FC = () => {
             });
 
             if (res.success) {
-                setToast({ message: 'Activity saved successfully', type: 'success' });
+                // Calculate new total hours
+                const previousHours = activities[selectedActivity] || 0;
+                const currentTotalHours = Object.values(activities).reduce((sum, h) => sum + h, 0);
+                const newTotalHours = currentTotalHours - previousHours + hours;
+                
+                // Play appropriate sound
+                if (newTotalHours >= 24 && currentTotalHours < 24) {
+                    // Just completed 24 hours!
+                    playCompletionSound();
+                    setToast({ message: '🎉 Day fully logged! Great job!', type: 'success' });
+                } else {
+                    // Regular activity update
+                    playActivitySound();
+                    setToast({ message: 'Activity saved successfully', type: 'success' });
+                }
+                
                 setActivities(prev => ({
                     ...prev,
                     [selectedActivity]: hours

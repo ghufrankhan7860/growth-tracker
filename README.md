@@ -157,3 +157,5 @@ Response:
 - [ ] Reset Password
 - [ ] Custom Tile
 - [x] Dark Theme
+- [ ] Reset Password
+- [ ] Friends
