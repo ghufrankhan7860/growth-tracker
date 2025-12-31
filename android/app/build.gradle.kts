@@ -20,7 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        buildConfigField("String", "BASE_URL", "\"https://northern-mariellen-aman1117-e5652442.koyeb.app\"")
+        buildConfigField("String", "BASE_URL", "\"https://growth-tracker-api.yellowwater-07aa7c55.centralindia.azurecontainerapps.io\"")
     }
 
     buildTypes {
