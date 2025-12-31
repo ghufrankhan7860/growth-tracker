@@ -50,7 +50,7 @@ var ActivityNames = []ActivityName{
 type Activity struct {
 	ID uint `gorm:"primaryKey"`
 
-	UserID uint `gorm:"not null;index"`
+	UserID uint `gorm:"not null;index:idx_activities_user_date"`
 	User   User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	Name ActivityName `gorm:"type:varchar(50);not null"`
@@ -60,7 +60,7 @@ type Activity struct {
 
 	CreatedAt    time.Time `gorm:"not null;default:now();autoCreateTime"`
 	UpdatedAt    time.Time `gorm:"not null;default:now();autoUpdateTime"`
-	ActivityDate time.Time `gorm:"type:date;default:CURRENT_DATE"`
+	ActivityDate time.Time `gorm:"type:date;default:CURRENT_DATE;index:idx_activities_user_date"`
 }
 
 func (a *Activity) BeforeSave(tx *gorm.DB) error {

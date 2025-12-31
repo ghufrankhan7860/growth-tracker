@@ -17,6 +17,9 @@ import (
 
 func main() {
 
+	// Initialize environment variables once at startup
+	utils.InitDB()
+
 	db := utils.GetDB()
 	if err := db.Error; err != nil {
 		log.Fatalf("DB connection failed: %v", err)

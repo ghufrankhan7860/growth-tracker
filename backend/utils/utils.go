@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"sync"
 	"time"
 
 	"fmt"
@@ -22,21 +23,49 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-func GetDB() *gorm.DB {
+var (
+	db   *gorm.DB
+	once sync.Once
+)
+
+func InitDB() {
 	err := godotenv.Load()
 	if err != nil {
 		log.Println("no .env file found, using environment only")
 	}
-	username := GetFromEnv("DB_USERNAME")
-	password := GetFromEnv("DB_PASSWORD")
-	host := GetFromEnv("DB_HOST")
-	port := GetFromEnv("DB_PORT")
-	dbname := GetFromEnv("DB_NAME")
-	psql := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=require&channel_binding=require", username, password, host, port, dbname)
-	db, err := gorm.Open(postgres.Open(psql), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
+}
+
+func GetDB() *gorm.DB {
+	once.Do(func() {
+		username := GetFromEnv("DB_USERNAME")
+		password := GetFromEnv("DB_PASSWORD")
+		host := GetFromEnv("DB_HOST")
+		port := GetFromEnv("DB_PORT")
+		dbname := GetFromEnv("DB_NAME")
+		psql := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=require", username, password, host, port, dbname)
+
+		var err error
+		db, err = gorm.Open(postgres.Open(psql), &gorm.Config{
+			PrepareStmt: true, // Cache prepared statements for better performance
+		})
+		if err != nil {
+			panic("failed to connect database")
+		}
+
+		// Configure connection pool
+		sqlDB, err := db.DB()
+		if err != nil {
+			panic("failed to get underlying sql.DB")
+		}
+
+		// Connection pool settings for better performance
+		sqlDB.SetMaxIdleConns(10)                  // Keep 10 idle connections ready
+		sqlDB.SetMaxOpenConns(100)                 // Max 100 concurrent connections
+		sqlDB.SetConnMaxLifetime(time.Hour)        // Recycle connections after 1 hour
+		sqlDB.SetConnMaxIdleTime(10 * time.Minute) // Close idle connections after 10 min
+
+		log.Println("Database connection pool initialized")
+	})
 	return db
 }
 
