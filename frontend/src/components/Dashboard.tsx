@@ -3,12 +3,10 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../utils/api';
 import { ACTIVITY_NAMES } from '../types';
 import type { ActivityName, Activity } from '../types';
-import { DateNavigator } from './DateNavigator';
+import { DaySummaryCard } from './DaySummaryCard';
 import { ActivityTile } from './ActivityTile';
 import { ActivityModal } from './ActivityModal';
 import { Toast } from './Toast';
-import { StreakCard } from './StreakCard';
-import { HoursSummary } from './HoursSummary';
 import { useParams } from 'react-router-dom';
 import { playActivitySound, playCompletionSound } from '../utils/sounds';
 import {
@@ -182,19 +180,15 @@ export const Dashboard: React.FC = () => {
                 </div>
             )}
 
-            <StreakCard
+            <DaySummaryCard
                 username={targetUsername || ''}
-                date={formatDateForApi(currentDate)}
-            />
-
-            <DateNavigator
                 currentDate={currentDate}
                 onPrev={handlePrevDay}
                 onNext={handleNextDay}
                 isNextDisabled={isNextDisabled()}
+                activities={activities}
+                loading={loading}
             />
-
-            <HoursSummary activities={activities} loading={loading} />
 
             {loading ? (
                 <div style={{
