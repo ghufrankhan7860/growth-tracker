@@ -1,14 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, TrendingUp, Search, User as UserIcon, X, Settings2 } from 'lucide-react';
+import { TrendingUp, Search, User as UserIcon, X, Settings2, Lock } from 'lucide-react';
 import { api } from '../utils/api';
+import { ProfileDialog } from './ProfileDialog';
 import { ThemeToggle } from './ThemeToggle';
 
 interface SearchResult {
     id: number;
     username: string;
     email: string;
+    profile_pic?: string;
+    is_private: boolean;
 }
 
 export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -20,8 +23,12 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const searchInputRef = useRef<HTMLInputElement>(null);
+    
+    // Profile Dialog State
+    const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     const handleLogout = () => {
+        setIsProfileOpen(false);
         logout();
         navigate('/login');
     };
@@ -92,7 +99,6 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
 
                     {user && (
                         <div className="flex items-center gap-4">
-                            <ThemeToggle />
                             <button
                                 onClick={() => {
                                     window.dispatchEvent(new CustomEvent('toggleEditMode'));
@@ -131,18 +137,33 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                 <Search size={16} />
                             </button>
 
-                            <div className="flex items-center gap-4">
+                            <button
+                                onClick={() => setIsProfileOpen(true)}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.25rem 0.75rem 0.25rem 0.25rem',
+                                    borderRadius: '20px',
+                                    border: '1px solid var(--border)',
+                                    backgroundColor: 'transparent',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.2s'
+                                }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'var(--bg-secondary)')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                            >
                                 <div
                                     style={{
-                                        width: '36px',
-                                        height: '36px',
+                                        width: '28px',
+                                        height: '28px',
                                         borderRadius: '50%',
                                         backgroundColor: 'var(--avatar-bg)',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
                                         fontWeight: 700,
-                                        fontSize: '0.9rem',
+                                        fontSize: '0.75rem',
                                         color: 'var(--text-primary)',
                                         textTransform: 'uppercase',
                                         transition: 'background-color 0.3s ease'
@@ -150,24 +171,14 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                 >
                                     {user.username.charAt(0)}
                                 </div>
-                                <button
-                                    onClick={handleLogout}
-                                    className="btn-outline"
-                                    style={{
-                                        padding: '0.5rem',
-                                        border: '1px solid var(--border)',
-                                        borderRadius: '50%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        color: 'var(--text-secondary)',
-                                        width: '36px',
-                                        height: '36px'
-                                    }}
-                                >
-                                    <LogOut size={16} />
-                                </button>
-                            </div>
+                                <span style={{
+                                    fontSize: '0.85rem',
+                                    fontWeight: 500,
+                                    color: 'var(--text-primary)'
+                                }}>
+                                    {user.username}
+                                </span>
+                            </button>
                         </div>
                     )}
                     
@@ -199,22 +210,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                 }} onClick={() => setIsSearchOpen(false)}>
                     <div style={{
                         width: '100%',
-                        maxWidth: '600px',
+                        maxWidth: '320px',
                         backgroundColor: 'var(--bg-primary)',
-                                    borderRadius: '8px',
+                        borderRadius: '10px',
                         boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
                         border: '1px solid var(--border)',
                         overflow: 'hidden',
                         margin: '0 1rem'
                     }} onClick={e => e.stopPropagation()}>
                         <div style={{
-                            padding: '1rem',
+                            padding: '0.75rem 1rem',
                             borderBottom: '1px solid var(--border)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.75rem'
+                            gap: '0.6rem'
                         }}>
-                            <Search size={20} color="var(--text-secondary)" />
+                            <Search size={16} color="var(--text-secondary)" />
                             <input
                                 ref={searchInputRef}
                                 type="text"
@@ -225,14 +236,21 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                     border: 'none',
                                     background: 'transparent',
                                     outline: 'none',
-                                    fontSize: '1.125rem',
+                                    fontSize: '0.9rem',
                                     color: 'var(--text-primary)',
                                     width: '100%',
                                     fontWeight: 500
                                 }}
                             />
                             <button
-                                onClick={() => setIsSearchOpen(false)}
+                                onClick={() => {
+                                    if (searchQuery.length > 0) {
+                                        setSearchQuery('');
+                                        searchInputRef.current?.focus();
+                                    } else {
+                                        setIsSearchOpen(false);
+                                    }
+                                }}
                                 style={{
                                     background: 'none',
                                     border: 'none',
@@ -241,22 +259,22 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                     padding: '0.25rem'
                                 }}
                             >
-                                <X size={20} />
+                                <X size={16} />
                             </button>
                         </div>
 
                         {searchResults.length > 0 && (
-                            <div style={{ maxHeight: '400px', overflowY: 'auto' }}>
+                            <div style={{ maxHeight: '280px', overflowY: 'auto' }}>
                                 {searchResults.map((result) => (
                                     <div
                                         key={result.id}
                                         onClick={() => handleUserClick(result.username)}
                                         style={{
-                                            padding: '0.75rem 1rem',
+                                            padding: '0.5rem 0.75rem',
                                             cursor: 'pointer',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            gap: '0.75rem',
+                                            gap: '0.6rem',
                                             borderBottom: '1px solid var(--border)',
                                             transition: 'background-color 0.2s'
                                         }}
@@ -264,21 +282,39 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                     >
                                         <div style={{
-                                            width: '40px',
-                                            height: '40px',
+                                            width: '32px',
+                                            height: '32px',
                                             borderRadius: '50%',
                                             backgroundColor: 'var(--bg-secondary)',
                                             display: 'flex',
                                             alignItems: 'center',
-                                            justifyContent: 'center'
+                                            justifyContent: 'center',
+                                            overflow: 'hidden'
                                         }}>
-                                            <UserIcon size={20} color="var(--text-secondary)" />
+                                            {result.profile_pic ? (
+                                                <img 
+                                                    src={result.profile_pic} 
+                                                    alt={result.username}
+                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                />
+                                            ) : (
+                                                <UserIcon size={16} color="var(--text-secondary)" />
+                                            )}
                                         </div>
-                                        <div>
-                                            <div style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                                        <div style={{ flex: 1 }}>
+                                            <div style={{ 
+                                                fontSize: '0.875rem', 
+                                                fontWeight: 600, 
+                                                color: 'var(--text-primary)',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}>
                                                 {result.username}
+                                                {result.is_private && (
+                                                    <Lock size={12} color="var(--text-secondary)" />
+                                                )}
                                             </div>
-
                                         </div>
                                     </div>
                                 ))}
@@ -286,13 +322,20 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                         )}
 
                         {searchQuery.length > 0 && searchResults.length === 0 && (
-                            <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
+                            <div style={{ padding: '1.5rem', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
                                 No users found
                             </div>
                         )}
                     </div>
                 </div>
             )}
+
+            {/* Profile Dialog */}
+            <ProfileDialog
+                isOpen={isProfileOpen}
+                onClose={() => setIsProfileOpen(false)}
+                onLogout={handleLogout}
+            />
         </div>
     );
 };

@@ -91,6 +91,10 @@ func main() {
 	app.Post("/tile-config", services.AuthMiddleware, services.SaveTileConfigHandler)
 	app.Post("/tile-config/user", services.AuthMiddleware, services.GetTileConfigByUsernameHandler)
 
+	app.Post("/update-username", services.AuthMiddleware, services.UpdateUsernameHandler)
+	app.Post("/update-privacy", services.AuthMiddleware, services.UpdatePrivacyHandler)
+	app.Get("/get-privacy", services.AuthMiddleware, services.GetPrivacyHandler)
+
 	port := utils.GetFromEnv("PORT")
 	if port == "" {
 		port = "8000"

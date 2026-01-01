@@ -32,38 +32,44 @@ type GetUsersRequest struct {
 	Username string `json:"username"`
 }
 type UserDTO struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	ID       uint   `json:"id"`
+	Username   string  `json:"username"`
+	Email      string  `json:"email"`
+	ID         uint    `json:"id"`
+	ProfilePic *string `json:"profile_pic"`
+	IsPrivate  bool    `json:"is_private"`
 }
 
 func CreateActivityHandler(c *fiber.Ctx) error {
 	var body ActivityRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
 		})
 	}
 
 	if body.Username == "" || body.Activity == "" || body.Hours < 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "MISSING_FIELDS",
 		})
 	}
 
 	if body.Username != c.Locals("username").(string) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "you are not authorized to create activity for this username",
+			"success":    false,
+			"error":      "you are not authorized to create activity for this username",
+			"error_code": "NOT_AUTHORIZED",
 		})
 	}
 
 	if !models.ActivityName(body.Activity).IsValid() {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid activity name",
+			"success":    false,
+			"error":      "Invalid activity name",
+			"error_code": "INVALID_ACTIVITY",
 		})
 	}
 
@@ -71,8 +77,9 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 	date, err := time.Parse(layout, body.Date)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid date format, use YYYY-MM-DD",
+			"success":    false,
+			"error":      "Invalid date format, use YYYY-MM-DD",
+			"error_code": "INVALID_DATE",
 		})
 	}
 	date = date.Truncate(24 * time.Hour)
@@ -86,8 +93,9 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 		Find(&dayActivities)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to find activities",
+			"success":    false,
+			"error":      "Failed to find activities",
+			"error_code": "FETCH_FAILED",
 		})
 	}
 
@@ -115,8 +123,9 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 
 	if newTotal > 24 {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Total hours cannot be more than 24",
+			"success":    false,
+			"error":      "Total hours cannot be more than 24",
+			"error_code": "HOURS_EXCEEDED",
 		})
 	}
 
@@ -124,16 +133,18 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 		existing.DurationHours = body.Hours
 		if err := db.Save(existing).Error; err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"error":   "Failed to update activity",
+				"success":    false,
+				"error":      "Failed to update activity",
+				"error_code": "UPDATE_FAILED",
 			})
 		}
 
 		err := AddStreak(userID, date, false)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"error":   err.Error(),
+				"success":    false,
+				"error":      err.Error(),
+				"error_code": "STREAK_ERROR",
 			})
 		}
 	} else {
@@ -145,16 +156,18 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 		}
 		if err := db.Create(&activity).Error; err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"error":   "Failed to create activity",
+				"success":    false,
+				"error":      "Failed to create activity",
+				"error_code": "CREATE_FAILED",
 			})
 		}
 
 		err := AddStreak(userID, date, false)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-				"success": false,
-				"error":   err.Error(),
+				"success":    false,
+				"error":      err.Error(),
+				"error_code": "STREAK_ERROR",
 			})
 		}
 	}
@@ -169,8 +182,9 @@ func GetActivityHandler(c *fiber.Ctx) error {
 	var body GetActivityRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
 		})
 	}
 
@@ -180,8 +194,9 @@ func GetActivityHandler(c *fiber.Ctx) error {
 	startDate, err := time.Parse(layout, body.StartDate)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid start_date format, use YYYY-MM-DD",
+			"success":    false,
+			"error":      "Invalid start_date format, use YYYY-MM-DD",
+			"error_code": "INVALID_DATE",
 		})
 	}
 
@@ -189,26 +204,41 @@ func GetActivityHandler(c *fiber.Ctx) error {
 	endDate, err := time.Parse(layout, body.EndDate)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid end_date format, use YYYY-MM-DD",
+			"success":    false,
+			"error":      "Invalid end_date format, use YYYY-MM-DD",
+			"error_code": "INVALID_DATE",
 		})
 	}
 
 	if startDate.After(endDate) {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Start date must be before end date",
+			"success":    false,
+			"error":      "Start date must be before end date",
+			"error_code": "INVALID_DATE_RANGE",
 		})
 	}
 
 	db := utils.GetDB()
 
+	// Get current user ID from context
+	currentUserID, _ := c.Locals("user_id").(uint)
+
 	// Find user by username
 	var user models.User
 	if err := db.Where("username = ?", body.Username).First(&user).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to find user",
+			"success":    false,
+			"error":      "Failed to find user",
+			"error_code": "USER_NOT_FOUND",
+		})
+	}
+
+	// Check if user is private and not the current user
+	if user.IsPrivate && user.ID != currentUserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"success":    false,
+			"error":      "This account is private",
+			"error_code": "ACCOUNT_PRIVATE",
 		})
 	}
 
@@ -221,8 +251,9 @@ func GetActivityHandler(c *fiber.Ctx) error {
 		endDate,
 	).Find(&activities).Error; err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to find activities",
+			"success":    false,
+			"error":      "Failed to find activities",
+			"error_code": "FETCH_FAILED",
 		})
 	}
 
@@ -250,19 +281,21 @@ func GetUsersHandler(c *fiber.Ctx) error {
 	var body GetUsersRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
 		})
 	}
 
 	db := utils.GetDB()
 	users := []models.User{}
-	// find user by username with ILIKE
+	// find user by username with ILIKE (include private users - they'll be marked as private in response)
 	result := db.Where("username ILIKE ?", "%"+body.Username+"%").Find(&users)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to find users",
+			"success":    false,
+			"error":      "Failed to find users",
+			"error_code": "FETCH_FAILED",
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -275,9 +308,11 @@ func SanitizeUsers(in []models.User) []UserDTO {
 	out := make([]UserDTO, 0, len(in))
 	for _, a := range in {
 		out = append(out, UserDTO{
-			ID:       a.ID,
-			Username: a.Username,
-			Email:    a.Email,
+			ID:         a.ID,
+			Username:   a.Username,
+			Email:      a.Email,
+			ProfilePic: a.ProfilePic,
+			IsPrivate:  a.IsPrivate,
 		})
 	}
 	return out

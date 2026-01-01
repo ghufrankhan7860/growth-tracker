@@ -61,8 +61,9 @@ func GetTileConfigHandler(c *fiber.Ctx) error {
 	userID, ok := c.Locals("user_id").(uint)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"error":   "Unauthorized",
+			"success":    false,
+			"error":      "Unauthorized",
+			"error_code": "UNAUTHORIZED",
 		})
 	}
 
@@ -91,15 +92,41 @@ func GetTileConfigByUsernameHandler(c *fiber.Ctx) error {
 	var req GetTileConfigByUsernameRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
 		})
 	}
 
 	if req.Username == "" {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Username is required",
+			"success":    false,
+			"error":      "Username is required",
+			"error_code": "MISSING_FIELDS",
+		})
+	}
+
+	db := utils.GetDB()
+
+	// Get current user ID from context
+	currentUserID, _ := c.Locals("user_id").(uint)
+
+	// First check if the user exists and is private
+	var user models.User
+	if err := db.Where("username = ?", req.Username).First(&user).Error; err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"success":    false,
+			"error":      "User not found",
+			"error_code": "USER_NOT_FOUND",
+		})
+	}
+
+	// Check if user is private and not the current user
+	if user.IsPrivate && user.ID != currentUserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"success":    false,
+			"error":      "This account is private",
+			"error_code": "ACCOUNT_PRIVATE",
 		})
 	}
 
@@ -128,23 +155,26 @@ func SaveTileConfigHandler(c *fiber.Ctx) error {
 	userID, ok := c.Locals("user_id").(uint)
 	if !ok {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-			"success": false,
-			"error":   "Unauthorized",
+			"success":    false,
+			"error":      "Unauthorized",
+			"error_code": "UNAUTHORIZED",
 		})
 	}
 
 	var req SaveTileConfigRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
 		})
 	}
 
 	if err := SaveTileConfig(userID, req.Config); err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to save tile configuration",
+			"success":    false,
+			"error":      "Failed to save tile configuration",
+			"error_code": "SAVE_FAILED",
 		})
 	}
 

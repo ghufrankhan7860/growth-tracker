@@ -108,8 +108,9 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	var body GetStreakRequest
 	if err := c.BodyParser(&body); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid request body",
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
 		})
 	}
 
@@ -117,8 +118,9 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	date, err := time.Parse(layout, body.Date)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Invalid date format, use YYYY-MM-DD",
+			"success":    false,
+			"error":      "Invalid date format, use YYYY-MM-DD",
+			"error_code": "INVALID_DATE",
 		})
 	}
 	date = date.Truncate(24 * time.Hour)
@@ -128,15 +130,28 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	result := db.Where("username = ?", body.Username).First(&user)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to find user",
+			"success":    false,
+			"error":      "Failed to find user",
+			"error_code": "USER_NOT_FOUND",
 		})
 	}
+
+	// Check if user is private and not the current user
+	currentUserID, _ := c.Locals("user_id").(uint)
+	if user.IsPrivate && user.ID != currentUserID {
+		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
+			"success":    false,
+			"error":      "This account is private",
+			"error_code": "ACCOUNT_PRIVATE",
+		})
+	}
+
 	result = db.Where("user_id = ? AND activity_date = ?", user.ID, date).Last(&streak)
 	if result.Error != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Failed to find streak",
+			"success":    false,
+			"error":      "Failed to find streak",
+			"error_code": "STREAK_NOT_FOUND",
 		})
 	}
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

@@ -31,3 +31,24 @@ func GetUserByIdentifier(identifier string) (*models.User, error) {
 	}
 	return user, nil
 }
+
+func UpdateUsername(userID uint, newUsername string) error {
+	db := utils.GetDB()
+	result := db.Model(&models.User{}).Where("id = ?", userID).Update("username", newUsername)
+	return result.Error
+}
+
+func UpdatePrivacy(userID uint, isPrivate bool) error {
+	db := utils.GetDB()
+	result := db.Model(&models.User{}).Where("id = ?", userID).Update("is_private", isPrivate)
+	return result.Error
+}
+
+func GetUserPrivacy(userID uint) (bool, error) {
+	db := utils.GetDB()
+	var user models.User
+	if err := db.Where("id = ?", userID).First(&user).Error; err != nil {
+		return false, err
+	}
+	return user.IsPrivate, nil
+}

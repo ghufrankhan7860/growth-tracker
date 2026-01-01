@@ -30,7 +30,8 @@ import { playActivitySound, playCompletionSound } from '../utils/sounds';
 import {
     Moon, BookOpen, Utensils, Users, Sparkles,
     Dumbbell, Film, Home, Coffee, Palette,
-    Plane, ShoppingBag, Sofa, Gamepad2, Briefcase
+    Plane, ShoppingBag, Sofa, Gamepad2, Briefcase,
+    Lock
 } from 'lucide-react';
 
 // Activity Configuration Map
@@ -159,6 +160,9 @@ export const Dashboard: React.FC = () => {
     // Toast State
     const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+    // Private account state (when viewing someone else's private profile)
+    const [isPrivateAccount, setIsPrivateAccount] = useState(false);
+
     // DnD Sensors
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -223,6 +227,7 @@ export const Dashboard: React.FC = () => {
             });
 
             if (res.success) {
+                setIsPrivateAccount(false);
                 const activityMap: Record<string, number> = {};
                 // Initialize all activities with 0
                 ACTIVITY_NAMES.forEach(name => {
@@ -234,6 +239,8 @@ export const Dashboard: React.FC = () => {
                     activityMap[a.name] = a.hours;
                 });
                 setActivities(activityMap);
+            } else if (res.error_code === 'ACCOUNT_PRIVATE') {
+                setIsPrivateAccount(true);
             }
         } catch (err) {
             console.error('Failed to fetch activities', err);
@@ -407,15 +414,17 @@ export const Dashboard: React.FC = () => {
                 </div>
             )}
 
-            <DaySummaryCard
-                username={targetUsername || ''}
-                currentDate={currentDate}
-                onPrev={handlePrevDay}
-                onNext={handleNextDay}
-                isNextDisabled={isNextDisabled()}
-                activities={activities}
-                loading={loading}
-            />
+            {!isPrivateAccount && (
+                <DaySummaryCard
+                    username={targetUsername || ''}
+                    currentDate={currentDate}
+                    onPrev={handlePrevDay}
+                    onNext={handleNextDay}
+                    isNextDisabled={isNextDisabled()}
+                    activities={activities}
+                    loading={loading}
+                />
+            )}
 
             {/* Edit Mode Bar - only show when in edit mode */}
             {!isReadOnly && isEditMode && (
@@ -503,6 +512,45 @@ export const Dashboard: React.FC = () => {
                             }}
                         />
                     ))}
+                </div>
+            ) : isPrivateAccount ? (
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '48px 24px',
+                    textAlign: 'center',
+                    backgroundColor: 'var(--bg-primary)',
+                    minHeight: '300px',
+                }}>
+                    <div style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '50%',
+                        border: '2px solid var(--border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        marginBottom: '16px',
+                    }}>
+                        <Lock size={32} style={{ color: 'var(--text-secondary)' }} />
+                    </div>
+                    <h3 style={{
+                        margin: '0 0 8px 0',
+                        fontSize: '1.1rem',
+                        fontWeight: 600,
+                        color: 'var(--text-primary)',
+                    }}>
+                        This Account is Private
+                    </h3>
+                    <p style={{
+                        margin: 0,
+                        fontSize: '0.9rem',
+                        color: 'var(--text-secondary)',
+                    }}>
+                        @{targetUsername}'s activity data is not visible to others.
+                    </p>
                 </div>
             ) : (
                 <DndContext

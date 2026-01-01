@@ -7,6 +7,8 @@ type User struct {
 	Email        string    `gorm:"unique;not null"`
 	Username     string    `gorm:"unique;not null"`
 	PasswordHash string    `gorm:"not null"`
+	ProfilePic   *string   `gorm:"default:null"` // URL to profile picture, null for now
+	IsPrivate    bool      `gorm:"default:false"`
 	CreatedAt    time.Time `gorm:"not null;default:now();autoCreateTime"`
 	UpdatedAt    time.Time `gorm:"not null;default:now();autoUpdateTime"`
 }
