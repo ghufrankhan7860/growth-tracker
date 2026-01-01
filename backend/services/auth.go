@@ -337,3 +337,89 @@ func GetPrivacyHandler(c *fiber.Ctx) error {
 		"is_private": isPrivate,
 	})
 }
+
+type changePasswordRequest struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+func ChangePasswordHandler(c *fiber.Ctx) error {
+	userID, ok := c.Locals("user_id").(uint)
+	if !ok {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success":    false,
+			"error":      "Unauthorized",
+			"error_code": "UNAUTHORIZED",
+		})
+	}
+
+	var body changePasswordRequest
+	if err := c.BodyParser(&body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success":    false,
+			"error":      "Invalid request body",
+			"error_code": "INVALID_REQUEST",
+		})
+	}
+
+	body.CurrentPassword = strings.TrimSpace(body.CurrentPassword)
+	body.NewPassword = strings.TrimSpace(body.NewPassword)
+
+	if body.CurrentPassword == "" || body.NewPassword == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success":    false,
+			"error":      "All fields are required",
+			"error_code": "MISSING_FIELDS",
+		})
+	}
+
+	if len(body.NewPassword) < 8 {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success":    false,
+			"error":      "Password must be at least 8 characters",
+			"error_code": "PASSWORD_TOO_SHORT",
+		})
+	}
+
+	// Get current user
+	user, err := GetUserByID(userID)
+	if err != nil || user == nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success":    false,
+			"error":      "User not found",
+			"error_code": "USER_NOT_FOUND",
+		})
+	}
+
+	// Verify current password
+	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(body.CurrentPassword)); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success":    false,
+			"error":      "Current password is incorrect",
+			"error_code": "INVALID_PASSWORD",
+		})
+	}
+
+	// Hash and save new password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success":    false,
+			"error":      "Failed to process password",
+			"error_code": "HASH_FAILED",
+		})
+	}
+
+	if err := UpdateUserPassword(userID, string(hashedPassword)); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success":    false,
+			"error":      "Failed to update password",
+			"error_code": "UPDATE_FAILED",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "Password changed successfully",
+	})
+}

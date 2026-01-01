@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Palette, LogOut, Check, Lock } from 'lucide-react';
+import { X, User, Palette, LogOut, Check, Lock, Key } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import { api } from '../utils/api';
@@ -19,6 +19,14 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
     const [isLoading, setIsLoading] = useState(false);
     const [isPrivate, setIsPrivate] = useState(false);
     const [isPrivacyLoading, setIsPrivacyLoading] = useState(false);
+
+    // Change password state
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [currentPassword, setCurrentPassword] = useState('');
+    const [newPassword, setNewPassword] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+    const [passwordSuccess, setPasswordSuccess] = useState(false);
 
     // Fetch privacy setting when dialog opens
     useEffect(() => {
@@ -96,6 +104,49 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
         setNewUsername(user.username);
         setIsEditingUsername(false);
         setError('');
+    };
+
+    const handleChangePassword = async () => {
+        if (currentPassword.length === 0 || newPassword.length === 0) {
+            setPasswordError('All fields are required');
+            return;
+        }
+        if (newPassword.length < 8) {
+            setPasswordError('Password must be at least 8 characters');
+            return;
+        }
+
+        setIsPasswordLoading(true);
+        setPasswordError('');
+        try {
+            const res = await api.post('/change-password', {
+                current_password: currentPassword,
+                new_password: newPassword
+            });
+            if (res.success) {
+                setPasswordSuccess(true);
+                setCurrentPassword('');
+                setNewPassword('');
+                setTimeout(() => {
+                    setIsChangingPassword(false);
+                    setPasswordSuccess(false);
+                }, 1500);
+            } else {
+                setPasswordError(res.error || 'Failed to change password');
+            }
+        } catch (err) {
+            setPasswordError('Failed to change password');
+        } finally {
+            setIsPasswordLoading(false);
+        }
+    };
+
+    const handleCancelPasswordChange = () => {
+        setCurrentPassword('');
+        setNewPassword('');
+        setPasswordError('');
+        setIsChangingPassword(false);
+        setPasswordSuccess(false);
     };
 
     return (
@@ -278,6 +329,124 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
                                         <div style={{ color: '#ef4444', fontSize: '0.7rem' }}>
                                             {error}
                                         </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Change Password */}
+                    <div
+                        style={{
+                            padding: '0.5rem',
+                            borderRadius: '8px',
+                            marginBottom: '0.125rem'
+                        }}
+                    >
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.6rem',
+                                cursor: isChangingPassword ? 'default' : 'pointer'
+                            }}
+                            onClick={() => !isChangingPassword && setIsChangingPassword(true)}
+                        >
+                            <div
+                                style={{
+                                    width: '28px',
+                                    height: '28px',
+                                    borderRadius: '6px',
+                                    backgroundColor: 'var(--bg-secondary)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
+                                }}
+                            >
+                                <Key size={14} color="var(--text-secondary)" />
+                            </div>
+                            {!isChangingPassword ? (
+                                <span style={{ fontSize: '0.85rem', color: 'var(--text-primary)' }}>
+                                    Change password
+                                </span>
+                            ) : (
+                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                                    {passwordSuccess ? (
+                                        <div style={{ color: '#22c55e', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                            <Check size={14} /> Password changed!
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <input
+                                                type="password"
+                                                value={currentPassword}
+                                                onChange={(e) => { setCurrentPassword(e.target.value); setPasswordError(''); }}
+                                                placeholder="Current password"
+                                                autoFocus
+                                                style={{
+                                                    padding: '0.4rem 0.6rem',
+                                                    borderRadius: '6px',
+                                                    border: `1px solid ${passwordError ? '#ef4444' : 'var(--border)'}`,
+                                                    backgroundColor: 'var(--bg-secondary)',
+                                                    color: 'var(--text-primary)',
+                                                    fontSize: '0.8rem',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                            <input
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(e) => { setNewPassword(e.target.value); setPasswordError(''); }}
+                                                placeholder="New password (min 8 chars)"
+                                                style={{
+                                                    padding: '0.4rem 0.6rem',
+                                                    borderRadius: '6px',
+                                                    border: `1px solid ${passwordError ? '#ef4444' : 'var(--border)'}`,
+                                                    backgroundColor: 'var(--bg-secondary)',
+                                                    color: 'var(--text-primary)',
+                                                    fontSize: '0.8rem',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                            <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                                <button
+                                                    onClick={handleChangePassword}
+                                                    disabled={isPasswordLoading}
+                                                    style={{
+                                                        flex: 1,
+                                                        padding: '0.4rem',
+                                                        borderRadius: '6px',
+                                                        border: 'none',
+                                                        backgroundColor: 'var(--accent)',
+                                                        color: 'white',
+                                                        cursor: isPasswordLoading ? 'not-allowed' : 'pointer',
+                                                        fontSize: '0.75rem',
+                                                        opacity: isPasswordLoading ? 0.7 : 1
+                                                    }}
+                                                >
+                                                    {isPasswordLoading ? 'Saving...' : 'Save'}
+                                                </button>
+                                                <button
+                                                    onClick={handleCancelPasswordChange}
+                                                    style={{
+                                                        padding: '0.4rem 0.6rem',
+                                                        borderRadius: '6px',
+                                                        border: '1px solid var(--border)',
+                                                        backgroundColor: 'transparent',
+                                                        color: 'var(--text-secondary)',
+                                                        cursor: 'pointer',
+                                                        fontSize: '0.75rem'
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                            {passwordError && (
+                                                <div style={{ color: '#ef4444', fontSize: '0.7rem' }}>
+                                                    {passwordError}
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </div>
                             )}

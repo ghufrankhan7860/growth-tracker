@@ -102,6 +102,7 @@ func main() {
 	app.Post("/update-username", services.AuthMiddleware, services.UpdateUsernameHandler)
 	app.Post("/update-privacy", services.AuthMiddleware, services.UpdatePrivacyHandler)
 	app.Get("/get-privacy", services.AuthMiddleware, services.GetPrivacyHandler)
+	app.Post("/change-password", services.AuthMiddleware, services.ChangePasswordHandler)
 
 	app.Post("/auth/forgot-password", services.ForgotPasswordHandler)
 	app.Post("/auth/reset-password", services.ResetPasswordHandler)
