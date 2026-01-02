@@ -372,6 +372,32 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                     )}
                 </div>
             </header>
+
+            {/* Backdrop blur when search is open */}
+            {isSearchOpen && (
+                <div 
+                    onClick={closeSearch}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.4)',
+                        backdropFilter: 'blur(4px)',
+                        WebkitBackdropFilter: 'blur(4px)',
+                        zIndex: 40,
+                        animation: 'fadeIn 0.2s ease-out'
+                    }}
+                />
+            )}
+            <style>{`
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
+                }
+            `}</style>
+
             <main style={{ flex: 1, paddingTop: '0.5rem' }}>
                 {children}
             </main>
