@@ -24,6 +24,7 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
     // Profile picture state
     const [isUploadingPic, setIsUploadingPic] = useState(false);
     const [showPicOptions, setShowPicOptions] = useState(false);
+    const [showFullscreenPic, setShowFullscreenPic] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     // Toast state
@@ -52,7 +53,8 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
                 }
             });
         }
-    }, [isOpen, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isOpen]);
 
     if (!isOpen || !user) return null;
 
@@ -74,10 +76,14 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Validate file type
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        if (!allowedTypes.includes(file.type)) {
-            setToast({ message: 'Only JPG, PNG, and WebP images are allowed', type: 'error' });
+        // Validate file type (including HEIC from iPhones)
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+        // Also check extension as some browsers don't report HEIC mime type correctly
+        const ext = file.name.toLowerCase().split('.').pop();
+        const allowedExts = ['jpg', 'jpeg', 'png', 'webp', 'heic', 'heif'];
+        
+        if (!allowedTypes.includes(file.type) && !allowedExts.includes(ext || '')) {
+            setToast({ message: 'Only JPG, PNG, WebP, and HEIC images are allowed', type: 'error' });
             return;
         }
 
@@ -333,10 +339,15 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
                                 <img
                                     src={user.profilePic}
                                     alt={user.username}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowFullscreenPic(true);
+                                    }}
                                     style={{
                                         width: '100%',
                                         height: '100%',
-                                        objectFit: 'cover'
+                                        objectFit: 'cover',
+                                        cursor: 'zoom-in'
                                     }}
                                 />
                             ) : (
@@ -771,6 +782,85 @@ export const ProfileDialog: React.FC<ProfileDialogProps> = ({ isOpen, onClose, o
                     </div>
                 </div>
             </div>
+
+            {/* Fullscreen Profile Picture Viewer */}
+            {showFullscreenPic && user.profilePic && (
+                <div
+                    onClick={() => setShowFullscreenPic(false)}
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        backgroundColor: 'rgba(0, 0, 0, 0.95)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        zIndex: 10000,
+                        cursor: 'zoom-out',
+                        animation: 'fadeIn 0.2s ease-out'
+                    }}
+                >
+                    {/* Close button */}
+                    <button
+                        onClick={() => setShowFullscreenPic(false)}
+                        style={{
+                            position: 'absolute',
+                            top: '20px',
+                            right: '20px',
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '50%',
+                            border: 'none',
+                            backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                            color: 'white',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            transition: 'background-color 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.2)'}
+                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'}
+                    >
+                        <X size={24} />
+                    </button>
+                    
+                    {/* Profile image */}
+                    <img
+                        src={user.profilePic}
+                        alt={user.username}
+                        onClick={(e) => e.stopPropagation()}
+                        style={{
+                            maxWidth: '90vw',
+                            maxHeight: '90vh',
+                            objectFit: 'contain',
+                            borderRadius: '8px',
+                            cursor: 'default',
+                            animation: 'scaleIn 0.2s ease-out'
+                        }}
+                    />
+                    
+                    {/* Username label */}
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: '30px',
+                            left: '50%',
+                            transform: 'translateX(-50%)',
+                            color: 'white',
+                            fontSize: '1rem',
+                            fontWeight: 500,
+                            padding: '8px 16px',
+                            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                            borderRadius: '20px'
+                        }}
+                    >
+                        @{user.username}
+                    </div>
+                </div>
+            )}
             
             {/* Toast notification */}
             {toast && (

@@ -84,11 +84,11 @@ func UploadProfilePictureHandler(c *fiber.Ctx) error {
 
 	// Validate file type
 	ext := strings.ToLower(filepath.Ext(file.Filename))
-	allowedExts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".webp": true}
+	allowedExts := map[string]bool{".jpg": true, ".jpeg": true, ".png": true, ".webp": true, ".heic": true, ".heif": true}
 	if !allowedExts[ext] {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success": false,
-			"error":   "Only JPG, PNG, and WebP images are allowed",
+			"error":   "Only JPG, PNG, WebP, and HEIC images are allowed",
 		})
 	}
 
@@ -254,6 +254,8 @@ func getContentType(ext string) string {
 		".jpeg": "image/jpeg",
 		".png":  "image/png",
 		".webp": "image/webp",
+		".heic": "image/heic",
+		".heif": "image/heif",
 	}
 	if ct, ok := contentTypes[ext]; ok {
 		return ct
