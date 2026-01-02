@@ -26,7 +26,7 @@ func RunDailyJob(ctx context.Context) error {
 		0, 0, 0, 0,
 		loc,
 	)
-	utils.Sugar.Debugf("Running daily job for date: %v", todayIST)
+	utils.Sugar.Debugw("Running daily job", "date", todayIST)
 	for _, user := range users {
 		if err := AddStreak(user.ID, todayIST, true); err != nil {
 			return err

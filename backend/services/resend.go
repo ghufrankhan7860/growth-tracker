@@ -90,11 +90,11 @@ func SendStreakReminderEmails() error {
 		}
 
 		if _, err := client.Emails.Send(params); err != nil {
-			utils.Sugar.Warnf("Failed to send email to %s: %v", user.Email, err)
+			utils.Sugar.Warnw("Failed to send email", "email", user.Email, "user_id", user.ID, "error", err)
 			notSuccessful++
 		}
 	}
 
-	utils.Sugar.Infof("Sent reminder emails to %d users, %d failed", len(users), notSuccessful)
+	utils.Sugar.Infow("Sent reminder emails", "total", len(users), "failed", notSuccessful)
 	return nil
 }

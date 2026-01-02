@@ -98,19 +98,19 @@ func ForgotPasswordHandler(c *fiber.Ctx) error {
 	rawToken, tokenHash, err := utils.GenerateResetToken()
 	if err != nil {
 		// Log error internally but return success to user
-		utils.Sugar.Errorf("Error generating reset token: %v", err)
+		utils.Sugar.Errorw("Error generating reset token", "email", req.Email, "error", err)
 		return c.Status(fiber.StatusOK).JSON(successResponse)
 	}
 
 	// Store token hash in Redis
 	if err := utils.StoreResetToken(ctx, tokenHash, user.ID); err != nil {
-		utils.Sugar.Errorf("Error storing reset token: %v", err)
+		utils.Sugar.Errorw("Error storing reset token", "user_id", user.ID, "error", err)
 		return c.Status(fiber.StatusOK).JSON(successResponse)
 	}
 
 	// Send email with reset link
 	if err := sendPasswordResetEmail(user.Email, user.Username, rawToken); err != nil {
-		utils.Sugar.Errorf("Error sending reset email: %v", err)
+		utils.Sugar.Errorw("Error sending reset email", "email", user.Email, "error", err)
 		// Still return success - don't reveal email sending issues
 	}
 
@@ -161,7 +161,7 @@ func ResetPasswordHandler(c *fiber.Ctx) error {
 
 	userID, err := utils.ConsumeResetToken(ctx, req.Token)
 	if err != nil {
-		utils.Sugar.Errorf("Error consuming reset token: %v", err)
+		utils.Sugar.Errorw("Error consuming reset token", "error", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "An error occurred. Please try again.",
@@ -180,7 +180,7 @@ func ResetPasswordHandler(c *fiber.Ctx) error {
 	// Hash the new password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(req.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
-		utils.Sugar.Errorf("Error hashing password: %v", err)
+		utils.Sugar.Errorw("Error hashing password", "user_id", userID, "error", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "An error occurred. Please try again.",
@@ -192,7 +192,7 @@ func ResetPasswordHandler(c *fiber.Ctx) error {
 	db := utils.GetDB()
 	result := db.Model(&models.User{}).Where("id = ?", userID).Update("password_hash", string(hashedPassword))
 	if result.Error != nil {
-		utils.Sugar.Errorf("Error updating password: %v", result.Error)
+		utils.LogWithUserID(userID).Errorw("Error updating password", "error", result.Error)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to update password",
@@ -222,7 +222,7 @@ func ValidateResetTokenHandler(c *fiber.Ctx) error {
 
 	userID, err := utils.ValidateResetToken(ctx, token)
 	if err != nil {
-		utils.Sugar.Errorf("Error validating reset token: %v", err)
+		utils.Sugar.Errorw("Error validating reset token", "error", err)
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"success": true,
 			"valid":   false,

@@ -199,3 +199,23 @@ func SyncLogger() {
 		axiomWriter.Stop()
 	}
 }
+
+// LogWithUser returns a sugared logger with user context fields
+func LogWithUser(userID uint, username string) *zap.SugaredLogger {
+	fields := []interface{}{}
+	if userID > 0 {
+		fields = append(fields, "user_id", userID)
+	}
+	if username != "" {
+		fields = append(fields, "username", username)
+	}
+	return Sugar.With(fields...)
+}
+
+// LogWithUserID returns a sugared logger with just user_id field
+func LogWithUserID(userID uint) *zap.SugaredLogger {
+	if userID > 0 {
+		return Sugar.With("user_id", userID)
+	}
+	return Sugar
+}
