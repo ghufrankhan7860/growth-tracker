@@ -489,7 +489,7 @@ export const Dashboard: React.FC = () => {
                             targetUsername?.charAt(0)
                         )}
                     </div>
-                    <span>Viewing {targetUsername}'s Dashboard</span>
+                    <span>Viewing @{targetUsername}</span>
                 </div>
             )}
 
@@ -555,7 +555,7 @@ export const Dashboard: React.FC = () => {
                                 borderRadius: '4px',
                                 cursor: 'pointer',
                                 fontSize: '0.75rem',
-                                fontWeight: 500,
+                                fontWeight: 400,
                             }}
                         >
                             Cancel
@@ -575,7 +575,7 @@ export const Dashboard: React.FC = () => {
                                 borderRadius: '4px',
                                 cursor: 'pointer',
                                 fontSize: '0.75rem',
-                                fontWeight: 500,
+                                fontWeight: 400,
                             }}
                         >
                             Done
