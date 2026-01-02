@@ -166,10 +166,23 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         fontSize: '0.75rem',
                                         color: 'var(--text-primary)',
                                         textTransform: 'uppercase',
-                                        transition: 'background-color 0.3s ease'
+                                        transition: 'background-color 0.3s ease',
+                                        overflow: 'hidden'
                                     }}
                                 >
-                                    {user.username.charAt(0)}
+                                    {user.profilePic ? (
+                                        <img
+                                            src={user.profilePic}
+                                            alt={user.username}
+                                            style={{
+                                                width: '100%',
+                                                height: '100%',
+                                                objectFit: 'cover'
+                                            }}
+                                        />
+                                    ) : (
+                                        user.username.charAt(0)
+                                    )}
                                 </div>
                                 <span style={{
                                     fontSize: '0.85rem',
