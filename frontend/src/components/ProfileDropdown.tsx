@@ -4,7 +4,11 @@ import { Settings, Sun, Moon, Monitor } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 
-export const ProfileDropdown: React.FC = () => {
+interface ProfileDropdownProps {
+    onOpen?: () => void;
+}
+
+export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ onOpen }) => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const { theme, setTheme } = useTheme();
@@ -18,6 +22,11 @@ export const ProfileDropdown: React.FC = () => {
             setIsOpen(false);
             setIsClosing(false);
         }, 150);
+    };
+
+    const handleOpen = () => {
+        onOpen?.();
+        setIsOpen(true);
     };
 
     // Close dropdown when clicking outside
@@ -43,7 +52,7 @@ export const ProfileDropdown: React.FC = () => {
         <div ref={dropdownRef} style={{ position: 'relative' }}>
             {/* Profile Pill Button */}
             <button
-                onClick={() => isOpen ? closeDropdown() : setIsOpen(true)}
+                onClick={() => isOpen ? closeDropdown() : handleOpen()}
                 style={{
                     display: 'flex',
                     alignItems: 'center',

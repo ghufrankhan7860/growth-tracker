@@ -37,11 +37,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
         }
     }, [isSearchOpen]);
 
-    // Close search dropdown when clicking outside
+    // Close search when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+                // Collapse search entirely when clicking outside
+                setIsSearchOpen(false);
                 setIsSearchFocused(false);
+                setSearchQuery('');
+                setSearchResults([]);
             }
         };
 
@@ -246,7 +250,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                     <div style={{
                                         position: 'absolute',
                                         top: 'calc(100% + 8px)',
-                                        left: isSearchOpen ? '36px' : '0',
+                                        left: 0,
                                         right: 0,
                                         backgroundColor: 'var(--bg-primary)',
                                         borderRadius: '12px',
@@ -254,7 +258,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
                                         overflow: 'hidden',
                                         zIndex: 100,
-                                        maxHeight: '320px',
+                                        maxHeight: '280px',
                                         overflowY: 'auto',
                                         animation: 'dropdownFadeIn 0.2s ease-out'
                                     }}>
@@ -265,25 +269,25 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                             }
                                         `}</style>
                                         {searchResults.length > 0 ? (
-                                            searchResults.map((result) => (
+                                            searchResults.map((result, index) => (
                                                 <div
                                                     key={result.id}
                                                     onClick={() => handleUserClick(result.username)}
                                                     style={{
-                                                        padding: '0.75rem 1rem',
+                                                        padding: '0.5rem 0.75rem',
                                                         cursor: 'pointer',
                                                         display: 'flex',
                                                         alignItems: 'center',
-                                                        gap: '0.75rem',
-                                                        borderBottom: '1px solid var(--border)',
+                                                        gap: '0.5rem',
+                                                        borderBottom: index < searchResults.length - 1 ? '1px solid var(--border)' : 'none',
                                                         transition: 'background-color 0.15s'
                                                     }}
                                                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--bg-secondary)'}
                                                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                                                 >
                                                     <div style={{
-                                                        width: '40px',
-                                                        height: '40px',
+                                                        width: '28px',
+                                                        height: '28px',
                                                         borderRadius: '50%',
                                                         backgroundColor: 'var(--avatar-bg)',
                                                         display: 'flex',
@@ -299,32 +303,31 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                                                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                                             />
                                                         ) : (
-                                                            <UserIcon size={18} color="var(--text-secondary)" />
+                                                            <UserIcon size={14} color="var(--text-secondary)" />
                                                         )}
                                                     </div>
-                                                    <div style={{ flex: 1 }}>
-                                                        <div style={{ 
-                                                            fontSize: '0.9375rem', 
-                                                            fontWeight: 600, 
-                                                            color: 'var(--text-primary)',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '6px'
-                                                        }}>
-                                                            @{result.username}
-                                                            {result.is_private && (
-                                                                <Lock size={12} color="var(--text-secondary)" />
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                                    <span style={{ 
+                                                        fontSize: '0.8125rem', 
+                                                        fontWeight: 500, 
+                                                        color: 'var(--text-primary)',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        flex: 1
+                                                    }}>
+                                                        @{result.username}
+                                                    </span>
+                                                    {result.is_private && (
+                                                        <Lock size={12} color="var(--text-secondary)" style={{ flexShrink: 0 }} />
+                                                    )}
                                                 </div>
                                             ))
                                         ) : searchQuery.length > 0 ? (
                                             <div style={{ 
-                                                padding: '2rem 1rem', 
+                                                padding: '1.25rem 0.75rem', 
                                                 textAlign: 'center', 
                                                 color: 'var(--text-secondary)', 
-                                                fontSize: '0.875rem' 
+                                                fontSize: '0.8125rem' 
                                             }}>
                                                 No users found
                                             </div>
@@ -337,6 +340,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                             {!isSearchOpen && (
                                 <button
                                     onClick={() => {
+                                        closeSearch();
                                         window.dispatchEvent(new CustomEvent('toggleEditMode'));
                                     }}
                                     style={{
@@ -358,7 +362,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                 </button>
                             )}
 
-                            <ProfileDropdown />
+                            <ProfileDropdown onOpen={closeSearch} />
                         </div>
                     )}
                     
