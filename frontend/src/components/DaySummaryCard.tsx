@@ -140,7 +140,7 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
                     <span
                         style={{
                             fontSize: '0.875rem',
-                            fontWeight: 600,
+                            fontWeight: 400,
                             color: 'var(--text-primary)',
                             minWidth: '80px',
                             textAlign: 'center',
@@ -190,7 +190,7 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
                     <span
                         style={{
                             fontSize: '0.8rem',
-                            fontWeight: 700,
+                            fontWeight: 400,
                             color: isComplete ? 'var(--success)' : 'var(--text-primary)',
                             minWidth: '45px',
                         }}
@@ -204,14 +204,14 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
                     {isToday() && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                             <Flame size={14} fill="#fcd34d" color="#f59e0b" />
-                            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                            <span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-primary)' }}>
                                 {streak.current}
                             </span>
                         </div>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                         <Trophy size={13} fill="#fef08a" color="#eab308" />
-                        <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                        <span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-primary)' }}>
                             {streak.longest}
                         </span>
                     </div>

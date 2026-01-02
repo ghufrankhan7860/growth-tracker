@@ -188,7 +188,7 @@ export const ActivityTile: React.FC<ActivityTileProps> = ({
                         <span style={{
                             fontSize: adjustedFontSize,
                             textAlign: size === 'wide' ? 'left' : 'center',
-                            fontWeight: 600,
+                            fontWeight: 400,
                             color: isActive ? 'white' : 'var(--text-secondary)',
                             lineHeight: 1.2,
                             wordBreak: 'break-word',
