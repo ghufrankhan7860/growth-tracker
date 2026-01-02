@@ -57,44 +57,57 @@ export const ProfileDropdown: React.FC<ProfileDropdownProps> = ({ onOpen }) => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    padding: 0,
+                    padding: '2px',
                     borderRadius: '50%',
                     border: 'none',
-                    backgroundColor: 'transparent',
+                    background: 'linear-gradient(135deg, #f59e0b 0%, #eab308 50%, #ca8a04 100%)',
                     cursor: 'pointer',
-                    width: '36px',
-                    height: '36px'
+                    width: '40px',
+                    height: '40px'
                 }}
             >
                 <div
                     style={{
-                        width: '36px',
-                        height: '36px',
+                        width: '100%',
+                        height: '100%',
                         borderRadius: '50%',
-                        backgroundColor: 'var(--avatar-bg)',
+                        backgroundColor: 'var(--bg-primary)',
+                        padding: '2px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        fontWeight: 700,
-                        fontSize: '0.875rem',
-                        color: 'var(--text-primary)',
-                        textTransform: 'uppercase',
-                        overflow: 'hidden'
                     }}
                 >
-                    {user.profilePic ? (
-                        <img
-                            src={user.profilePic}
-                            alt={user.username}
-                            style={{
-                                width: '100%',
-                                height: '100%',
-                                objectFit: 'cover'
-                            }}
-                        />
-                    ) : (
-                        user.username.charAt(0)
-                    )}
+                    <div
+                        style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: '50%',
+                            backgroundColor: 'var(--avatar-bg)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontWeight: 700,
+                            fontSize: '0.875rem',
+                            color: 'var(--text-primary)',
+                            textTransform: 'uppercase',
+                            overflow: 'hidden'
+                        }}
+                    >
+                        {user.profilePic ? (
+                            <img
+                                src={user.profilePic}
+                                alt={user.username}
+                                style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    objectFit: 'cover'
+                                }}
+                            />
+                        ) : (
+                            user.username.charAt(0)
+                        )}
+                    </div>
                 </div>
             </button>
 
