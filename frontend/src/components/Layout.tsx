@@ -306,7 +306,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                                         )}
                                                     </div>
                                                     <span style={{ 
-                                                        fontSize: '0.8125rem', 
+                                                        fontSize: '0.9375rem', 
                                                         fontWeight: 500, 
                                                         color: 'var(--text-primary)',
                                                         overflow: 'hidden',
@@ -326,7 +326,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                                 padding: '1.25rem 0.75rem', 
                                                 textAlign: 'center', 
                                                 color: 'var(--text-secondary)', 
-                                                fontSize: '0.8125rem' 
+                                                fontSize: '0.9375rem' 
                                             }}>
                                                 No users found
                                             </div>
