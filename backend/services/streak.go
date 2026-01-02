@@ -129,6 +129,7 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	user := models.User{}
 	result := db.Where("username = ?", body.Username).First(&user)
 	if result.Error != nil {
+		utils.Sugar.Warnf("Streak fetch failed - user not found: %s", body.Username)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find user",
@@ -139,6 +140,7 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	// Check if user is private and not the current user
 	currentUserID, _ := c.Locals("user_id").(uint)
 	if user.IsPrivate && user.ID != currentUserID {
+		utils.Sugar.Debugf("Streak access denied - private account: username=%s requestedBy=%d", body.Username, currentUserID)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success":    false,
 			"error":      "This account is private",
@@ -148,6 +150,7 @@ func GetStreakHandler(c *fiber.Ctx) error {
 
 	result = db.Where("user_id = ? AND activity_date = ?", user.ID, date).Last(&streak)
 	if result.Error != nil {
+		utils.Sugar.Debugf("Streak not found: username=%s date=%s", body.Username, body.Date)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find streak",

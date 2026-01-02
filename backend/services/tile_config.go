@@ -114,6 +114,7 @@ func GetTileConfigByUsernameHandler(c *fiber.Ctx) error {
 	// First check if the user exists and is private
 	var user models.User
 	if err := db.Where("username = ?", req.Username).First(&user).Error; err != nil {
+		utils.Sugar.Warnf("Tile config fetch failed - user not found: %s", req.Username)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success":    false,
 			"error":      "User not found",
@@ -123,6 +124,7 @@ func GetTileConfigByUsernameHandler(c *fiber.Ctx) error {
 
 	// Check if user is private and not the current user
 	if user.IsPrivate && user.ID != currentUserID {
+		utils.Sugar.Debugf("Tile config access denied - private account: username=%s requestedBy=%d", req.Username, currentUserID)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success":    false,
 			"error":      "This account is private",
@@ -171,6 +173,7 @@ func SaveTileConfigHandler(c *fiber.Ctx) error {
 	}
 
 	if err := SaveTileConfig(userID, req.Config); err != nil {
+		utils.Sugar.Errorf("Tile config save failed for userID=%d: %v", userID, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to save tile configuration",
@@ -178,6 +181,7 @@ func SaveTileConfigHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	utils.Sugar.Debugf("Tile config saved for userID=%d", userID)
 	return c.JSON(fiber.Map{
 		"success": true,
 		"message": "Tile configuration saved successfully",

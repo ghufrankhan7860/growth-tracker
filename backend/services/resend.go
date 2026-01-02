@@ -48,7 +48,7 @@ func SendStreakReminderEmails() error {
 		).
 		Find(&users)
 	if len(users) == 0 {
-		fmt.Println("No users found who missed their streak yesterday")
+		utils.Sugar.Info("No users found who missed their streak yesterday")
 		return nil
 	}
 
@@ -90,11 +90,11 @@ func SendStreakReminderEmails() error {
 		}
 
 		if _, err := client.Emails.Send(params); err != nil {
-			fmt.Printf("Failed to send email to %s: %v\n", user.Email, err)
+			utils.Sugar.Warnf("Failed to send email to %s: %v", user.Email, err)
 			notSuccessful++
 		}
 	}
 
-	fmt.Printf("Sent emails to %d users, %d were not successful\n", len(users), notSuccessful)
+	utils.Sugar.Infof("Sent reminder emails to %d users, %d failed", len(users), notSuccessful)
 	return nil
 }

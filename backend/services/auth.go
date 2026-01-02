@@ -74,6 +74,7 @@ func RegisterHandler(c *fiber.Ctx) error {
 	body.Username = strings.ToLower(strings.TrimSpace(body.Username))
 	body.Password = strings.TrimSpace(body.Password)
 	if err := CreateUser(body.Email, body.Username, body.Password); err != nil {
+		utils.Sugar.Warnf("Registration failed for email=%s username=%s: %v", body.Email, body.Username, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Could not create user (maybe email/username already used)",
@@ -81,6 +82,7 @@ func RegisterHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	utils.Sugar.Infof("New user registered: %s", body.Username)
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
 		"success": true,
 		"message": "User created successfully.",
@@ -110,6 +112,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	body.Identifier = strings.TrimSpace(body.Identifier)
 	user, err := GetUserByIdentifier(body.Identifier)
 	if err != nil {
+		utils.Sugar.Errorf("Database error during login for %s: %v", body.Identifier, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Database Error",
@@ -118,6 +121,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	}
 
 	if user == nil {
+		utils.Sugar.Warnf("Login attempt with non-existent user: %s", body.Identifier)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Invalid credentials",
@@ -126,6 +130,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(body.Password)); err != nil {
+		utils.Sugar.Warnf("Invalid password attempt for user: %s", body.Identifier)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Invalid password",
@@ -136,6 +141,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	token, exp, err := utils.GenerateToken(user)
 
 	if err != nil {
+		utils.Sugar.Errorf("Token generation failed for user %s: %v", user.Username, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to generate token",
@@ -144,6 +150,7 @@ func LoginHandler(c *fiber.Ctx) error {
 	}
 	ttl, err := strconv.Atoi(utils.GetFromEnv("TTL_ACCESS_TOKEN"))
 	if err != nil {
+		utils.Sugar.Error("TTL_ACCESS_TOKEN env var is invalid")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to generate token",
@@ -151,6 +158,7 @@ func LoginHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	utils.Sugar.Infof("User logged in: %s (ID: %d)", user.Username, user.ID)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success":      true,
 		"access_token": token,
@@ -261,6 +269,7 @@ func UpdateUsernameHandler(c *fiber.Ctx) error {
 
 	// Update username in database
 	if err := UpdateUsername(userID, newUsername); err != nil {
+		utils.Sugar.Warnf("Username update failed for userID=%d newUsername=%s: %v", userID, newUsername, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Username already taken or update failed",
@@ -268,6 +277,7 @@ func UpdateUsernameHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	utils.Sugar.Infof("Username updated: userID=%d newUsername=%s", userID, newUsername)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success":      true,
 		"message":      "Username updated successfully",
@@ -299,6 +309,7 @@ func UpdatePrivacyHandler(c *fiber.Ctx) error {
 	}
 
 	if err := UpdatePrivacy(userID, body.IsPrivate); err != nil {
+		utils.Sugar.Errorf("Privacy update failed for userID=%d: %v", userID, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to update privacy setting",
@@ -306,6 +317,7 @@ func UpdatePrivacyHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	utils.Sugar.Infof("Privacy updated: userID=%d isPrivate=%v", userID, body.IsPrivate)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success":    true,
 		"message":    "Privacy setting updated",
@@ -325,6 +337,7 @@ func GetPrivacyHandler(c *fiber.Ctx) error {
 
 	isPrivate, err := GetUserPrivacy(userID)
 	if err != nil {
+		utils.Sugar.Errorf("Failed to get privacy setting for userID=%d: %v", userID, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to get privacy setting",
@@ -393,6 +406,7 @@ func ChangePasswordHandler(c *fiber.Ctx) error {
 
 	// Verify current password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(body.CurrentPassword)); err != nil {
+		utils.Sugar.Warnf("Invalid current password for password change: userID=%d", userID)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Current password is incorrect",
@@ -403,6 +417,7 @@ func ChangePasswordHandler(c *fiber.Ctx) error {
 	// Hash and save new password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(body.NewPassword), bcrypt.DefaultCost)
 	if err != nil {
+		utils.Sugar.Errorf("Failed to hash new password for userID=%d: %v", userID, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to process password",
@@ -411,6 +426,7 @@ func ChangePasswordHandler(c *fiber.Ctx) error {
 	}
 
 	if err := UpdateUserPassword(userID, string(hashedPassword)); err != nil {
+		utils.Sugar.Errorf("Failed to update password in DB for userID=%d: %v", userID, err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to update password",
@@ -418,6 +434,7 @@ func ChangePasswordHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	utils.Sugar.Infof("Password changed successfully for userID=%d", userID)
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"message": "Password changed successfully",

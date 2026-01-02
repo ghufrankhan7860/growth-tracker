@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/aman1117/backend/models"
@@ -27,7 +26,7 @@ func RunDailyJob(ctx context.Context) error {
 		0, 0, 0, 0,
 		loc,
 	)
-	fmt.Println(todayIST)
+	utils.Sugar.Debugf("Running daily job for date: %v", todayIST)
 	for _, user := range users {
 		if err := AddStreak(user.ID, todayIST, true); err != nil {
 			return err

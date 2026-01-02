@@ -132,6 +132,7 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 	if existing != nil {
 		existing.DurationHours = body.Hours
 		if err := db.Save(existing).Error; err != nil {
+			utils.Sugar.Errorf("Failed to update activity for userID=%d: %v", userID, err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success":    false,
 				"error":      "Failed to update activity",
@@ -141,12 +142,14 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 
 		err := AddStreak(userID, date, false)
 		if err != nil {
+			utils.Sugar.Errorf("Failed to add streak for userID=%d: %v", userID, err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success":    false,
 				"error":      err.Error(),
 				"error_code": "STREAK_ERROR",
 			})
 		}
+		utils.Sugar.Debugf("Activity updated: userID=%d activity=%s hours=%.1f date=%s", userID, body.Activity, body.Hours, body.Date)
 	} else {
 		activity := models.Activity{
 			UserID:        userID,
@@ -155,6 +158,7 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 			ActivityDate:  date,
 		}
 		if err := db.Create(&activity).Error; err != nil {
+			utils.Sugar.Errorf("Failed to create activity for userID=%d: %v", userID, err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success":    false,
 				"error":      "Failed to create activity",
@@ -164,12 +168,14 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 
 		err := AddStreak(userID, date, false)
 		if err != nil {
+			utils.Sugar.Errorf("Failed to add streak for userID=%d: %v", userID, err)
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 				"success":    false,
 				"error":      err.Error(),
 				"error_code": "STREAK_ERROR",
 			})
 		}
+		utils.Sugar.Debugf("Activity created: userID=%d activity=%s hours=%.1f date=%s", userID, body.Activity, body.Hours, body.Date)
 	}
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
@@ -226,6 +232,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 	// Find user by username
 	var user models.User
 	if err := db.Where("username = ?", body.Username).First(&user).Error; err != nil {
+		utils.Sugar.Warnf("Activity fetch failed - user not found: %s", body.Username)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find user",
@@ -235,6 +242,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 
 	// Check if user is private and not the current user
 	if user.IsPrivate && user.ID != currentUserID {
+		utils.Sugar.Debugf("Activity access denied - private account: username=%s requestedBy=%d", body.Username, currentUserID)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success":    false,
 			"error":      "This account is private",
@@ -250,6 +258,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 		startDate,
 		endDate,
 	).Find(&activities).Error; err != nil {
+		utils.Sugar.Errorf("Activity fetch failed: username=%s error=%v", body.Username, err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find activities",
@@ -292,12 +301,14 @@ func GetUsersHandler(c *fiber.Ctx) error {
 	// find user by username with ILIKE (include private users - they'll be marked as private in response)
 	result := db.Where("username ILIKE ?", "%"+body.Username+"%").Find(&users)
 	if result.Error != nil {
+		utils.Sugar.Errorf("User search failed for query=%s: %v", body.Username, result.Error)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find users",
 			"error_code": "FETCH_FAILED",
 		})
 	}
+	utils.Sugar.Debugf("User search: query=%s found=%d", body.Username, len(users))
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"data":    SanitizeUsers(users),

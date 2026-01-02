@@ -2,13 +2,11 @@ package utils
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"os"
 	"strconv"
 	"sync"
 	"time"
-
-	"fmt"
 
 	"github.com/aman1117/backend/models"
 	"github.com/golang-jwt/jwt/v5"
@@ -32,7 +30,9 @@ var (
 func InitDB() {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("no .env file found, using environment only")
+		if Sugar != nil {
+			Sugar.Warn("No .env file found, using environment only")
+		}
 	}
 }
 
@@ -66,7 +66,9 @@ func GetDB() *gorm.DB {
 		sqlDB.SetConnMaxLifetime(time.Hour)        // Recycle connections after 1 hour
 		sqlDB.SetConnMaxIdleTime(10 * time.Minute) // Close idle connections after 10 min
 
-		log.Println("Database connection pool initialized")
+		if Sugar != nil {
+			Sugar.Info("Database connection pool initialized")
+		}
 	})
 	return db
 }

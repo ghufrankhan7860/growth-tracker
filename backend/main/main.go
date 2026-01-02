@@ -2,8 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"log"
 	"time"
 
 	"github.com/robfig/cron/v3"
@@ -16,6 +14,11 @@ import (
 )
 
 func main() {
+	// Initialize Zap logger first
+	utils.InitLogger()
+	defer utils.SyncLogger()
+
+	log := utils.Sugar // Use sugared logger for convenience
 
 	// Initialize environment variables once at startup
 	utils.InitDB()
@@ -27,16 +30,16 @@ func main() {
 
 	// Initialize Redis
 	if err := utils.InitRedis(); err != nil {
-		log.Printf(" Redis initialization failed: %v", err)
-		log.Println("Password reset functionality will be disabled")
+		log.Warnf("Redis initialization failed: %v", err)
+		log.Warn("Password reset functionality will be disabled")
 	} else {
-		fmt.Println("Redis connection successful")
+		log.Info("Redis connection successful")
 	}
 
 	if err := db.AutoMigrate(&models.User{}, &models.Activity{}, &models.Streak{}, &models.TileConfig{}); err != nil {
 		log.Fatalf("AutoMigrate failed: %v", err)
 	}
-	fmt.Println("DB Migrations Successful")
+	log.Info("DB migrations successful")
 
 	loc, err := time.LoadLocation("Asia/Kolkata")
 	if err != nil {
@@ -50,30 +53,34 @@ func main() {
 	// Midnight cron job for streak processing
 	_, err = c.AddFunc("0 0 0 * * *", func() {
 		if err := services.CronJob(context.Background()); err != nil {
-			log.Printf("daily job failed: %v", err)
+			log.Errorf("Daily job failed: %v", err)
 		} else {
-			log.Println("daily job completed successfully")
+			log.Info("Daily job completed successfully")
 		}
 	})
 	if err != nil {
-		log.Fatalf("failed to add cron job: %v", err)
+		log.Fatalf("Failed to add cron job: %v", err)
 	}
 
 	_, err = c.AddFunc("0 0 9 * * *", func() {
 		if err := services.SendStreakReminderEmails(); err != nil {
-			log.Printf("email reminder job failed: %v", err)
+			log.Errorf("Email reminder job failed: %v", err)
 		} else {
-			log.Println("email reminder job completed successfully")
+			log.Info("Email reminder job completed successfully")
 		}
 	})
 	if err != nil {
-		log.Fatalf("failed to add email cron job: %v", err)
+		log.Fatalf("Failed to add email cron job: %v", err)
 	}
 
 	c.Start()
 	defer c.Stop()
 
 	app := fiber.New()
+	
+	// Request logging middleware
+	app.Use(services.RequestLoggerMiddleware)
+	
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",   // allow all origins
 		AllowMethods:     "*",   // allow all HTTP methods
@@ -83,7 +90,7 @@ func main() {
 	}))
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		fmt.Println("Health check endpoint hit")
+		log.Debug("Health check endpoint hit")
 		return c.SendString("API is running...")
 	})
 	app.Post("/register", services.RegisterHandler)
@@ -113,9 +120,8 @@ func main() {
 		port = "8000"
 	}
 	addr := "0.0.0.0:" + port
+	log.Infof("Server starting on http://localhost:%s", port)
 	if err := app.Listen(addr); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
-	} else {
-		fmt.Println("Server is running at http://localhost:" + port)
 	}
 }

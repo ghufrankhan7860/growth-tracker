@@ -63,6 +63,10 @@ func InitRedis() error {
 		return fmt.Errorf("failed to connect to Redis: %w", err)
 	}
 
+	if Sugar != nil {
+		Sugar.Info("Redis connection pool initialized")
+	}
+
 	return nil
 }
 
