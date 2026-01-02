@@ -107,16 +107,15 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
                             onClick={() => navigate('/')}
                         >
-                            <div style={{
-                                background: 'var(--logo-bg)',
-                                color: 'var(--logo-color)',
-                                padding: '0.4rem',
-                                borderRadius: '8px',
-                                display: 'flex',
-                                transition: 'background-color 0.3s ease'
-                            }}>
-                                <TrendingUp size={22} strokeWidth={2.5} color="var(--logo-color)" />
-                            </div>
+                            <img 
+                                src="/logo.png" 
+                                alt="Growth Tracker" 
+                                style={{ 
+                                    height: '26px', 
+                                    width: 'auto',
+                                    filter: 'var(--logo-filter)'
+                                }} 
+                            />
                         </div>
                     )}
 

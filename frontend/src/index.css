@@ -37,6 +37,7 @@
   --icon-btn-color: #78350f;
   --logo-bg: #422006;
   --logo-color: #ffffff;
+  --logo-filter: invert(12%) sepia(62%) saturate(1500%) hue-rotate(10deg) brightness(92%) contrast(95%);
   
   /* Glass effect */
   --glass-bg: rgba(255, 255, 255, 0.7);
@@ -86,6 +87,7 @@
   --icon-btn-color: #fcd34d;
   --logo-bg: #fef3c7;
   --logo-color: #1c1410;
+  --logo-filter: invert(95%) sepia(20%) saturate(500%) hue-rotate(340deg) brightness(105%) contrast(95%);
   
   /* Glass effect */
   --glass-bg: rgba(37, 28, 20, 0.75);
