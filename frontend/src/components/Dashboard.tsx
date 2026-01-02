@@ -454,7 +454,22 @@ export const Dashboard: React.FC = () => {
                     backgroundColor: 'var(--bg-secondary)',
                     borderRadius: '8px',
                     marginBottom: '0.5rem',
+                    border: '1px solid var(--border)',
+                    animation: 'editBarSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    transformOrigin: 'top center',
                 }}>
+                    <style>{`
+                        @keyframes editBarSlideIn {
+                            0% {
+                                opacity: 0;
+                                transform: translateY(-10px) scale(0.95);
+                            }
+                            100% {
+                                opacity: 1;
+                                transform: translateY(0) scale(1);
+                            }
+                        }
+                    `}</style>
                     <span style={{
                         fontSize: '0.7rem',
                         color: 'var(--text-secondary)',
