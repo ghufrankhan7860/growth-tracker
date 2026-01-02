@@ -320,6 +320,8 @@ export const SettingsPage: React.FC = () => {
                     value={`@${user.username}`}
                     onClick={() => setShowUsernameDialog(true)}
                     showBorder
+                    iconColor="var(--text-secondary)"
+                    iconBg="var(--icon-bg-muted)"
                 />
                 
                 <SettingsItem
@@ -328,6 +330,8 @@ export const SettingsPage: React.FC = () => {
                     value="••••••••"
                     onClick={() => setShowPasswordDialog(true)}
                     showBorder
+                    iconColor="var(--text-secondary)"
+                    iconBg="var(--icon-bg-muted)"
                 />
 
                 <div style={{
@@ -341,11 +345,11 @@ export const SettingsPage: React.FC = () => {
                         width: '32px',
                         height: '32px',
                         borderRadius: '8px',
-                        backgroundColor: 'rgba(234, 179, 8, 0.15)',
+                        backgroundColor: 'var(--icon-bg-muted)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: 'var(--accent)'
+                        color: 'var(--text-secondary)'
                     }}>
                         <Lock size={16} />
                     </div>
@@ -366,7 +370,7 @@ export const SettingsPage: React.FC = () => {
                             height: '24px',
                             borderRadius: '12px',
                             border: 'none',
-                            backgroundColor: isPrivate ? 'var(--text-primary)' : 'var(--border)',
+                            backgroundColor: isPrivate ? '#0095f6' : 'var(--border)',
                             cursor: 'pointer',
                             position: 'relative',
                             transition: 'background-color 0.2s'
@@ -376,7 +380,7 @@ export const SettingsPage: React.FC = () => {
                             width: '18px',
                             height: '18px',
                             borderRadius: '50%',
-                            backgroundColor: isPrivate ? 'var(--bg-primary)' : 'white',
+                            backgroundColor: 'white',
                             position: 'absolute',
                             top: '3px',
                             left: isPrivate ? '23px' : '3px',
@@ -547,7 +551,9 @@ const SettingsItem: React.FC<{
     value?: string;
     onClick: () => void;
     showBorder?: boolean;
-}> = ({ icon, label, value, onClick, showBorder }) => (
+    iconColor?: string;
+    iconBg?: string;
+}> = ({ icon, label, value, onClick, showBorder, iconColor = '#3b82f6', iconBg = 'rgba(59, 130, 246, 0.1)' }) => (
     <button
         onClick={onClick}
         style={{
@@ -570,11 +576,11 @@ const SettingsItem: React.FC<{
             width: '32px',
             height: '32px',
             borderRadius: '8px',
-            backgroundColor: 'rgba(234, 179, 8, 0.15)',
+            backgroundColor: iconBg,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--accent)'
+            color: iconColor
         }}>
             {icon}
         </div>
@@ -651,8 +657,8 @@ const ProfilePictureDialog: React.FC<{
                         padding: '0.625rem 1.25rem',
                         borderRadius: '8px',
                         border: 'none',
-                        backgroundColor: 'var(--text-primary)',
-                        color: 'var(--bg-primary)',
+                        backgroundColor: '#0095f6',
+                        color: '#ffffff',
                         fontSize: '0.875rem',
                         cursor: 'pointer',
                         display: 'flex',
@@ -851,8 +857,8 @@ const UsernameDialog: React.FC<{
                             padding: '0.625rem 1.25rem',
                             borderRadius: '8px',
                             border: 'none',
-                            backgroundColor: 'var(--text-primary)',
-                            color: 'var(--bg-primary)',
+                            backgroundColor: '#0095f6',
+                            color: '#ffffff',
                             fontSize: '0.875rem',
                             fontWeight: 500,
                             cursor: 'pointer',
@@ -1052,8 +1058,8 @@ const PasswordDialog: React.FC<{
                             padding: '0.625rem 1.25rem',
                             borderRadius: '8px',
                             border: 'none',
-                            backgroundColor: 'var(--text-primary)',
-                            color: 'var(--bg-primary)',
+                            backgroundColor: '#0095f6',
+                            color: '#ffffff',
                             fontSize: '0.875rem',
                             fontWeight: 500,
                             cursor: 'pointer',

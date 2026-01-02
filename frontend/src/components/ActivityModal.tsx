@@ -274,33 +274,33 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                                     overflow: isNoteExpanded ? 'auto' : 'hidden',
                                 }}
                             />
-                            {/* Expand button - matches save button style */}
+                            {/* Expand button - small and subtle */}
                             {!isNoteExpanded && note.length > 50 && (
                                 <div
                                     onClick={() => setIsNoteExpanded(true)}
                                     style={{
                                         position: 'absolute',
-                                        bottom: '8px',
-                                        right: '8px',
+                                        bottom: '6px',
+                                        right: '6px',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        width: '24px',
-                                        height: '24px',
+                                        width: '18px',
+                                        height: '18px',
                                         borderRadius: '50%',
-                                        backgroundColor: 'var(--text-primary)',
-                                        color: 'var(--bg-secondary)',
+                                        backgroundColor: 'var(--border-strong)',
+                                        color: 'var(--text-secondary)',
                                         cursor: 'pointer',
                                         transition: 'all 0.2s ease',
                                     }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.backgroundColor = '#334155';
+                                        e.currentTarget.style.backgroundColor = 'var(--text-muted)';
                                     }}
                                     onMouseLeave={(e) => {
-                                        e.currentTarget.style.backgroundColor = 'var(--text-primary)';
+                                        e.currentTarget.style.backgroundColor = 'var(--border-strong)';
                                     }}
                                 >
-                                    <ChevronDown size={14} />
+                                    <ChevronDown size={10} />
                                 </div>
                             )}
                         </div>

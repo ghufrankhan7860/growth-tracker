@@ -103,11 +103,11 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
         <div
             style={{
                 background: isComplete 
-                    ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.12) 0%, rgba(16, 185, 129, 0.08) 100%)'
-                    : 'linear-gradient(135deg, rgba(251, 191, 36, 0.1) 0%, rgba(245, 158, 11, 0.06) 100%)',
+                    ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, rgba(16, 185, 129, 0.04) 100%)'
+                    : 'var(--bg-secondary)',
                 border: isComplete 
                     ? '1px solid rgba(34, 197, 94, 0.2)' 
-                    : '1px solid rgba(251, 191, 36, 0.2)',
+                    : '1px solid var(--border)',
                 borderRadius: '8px',
                 marginBottom: '1rem',
                 padding: '0.75rem 1rem',
@@ -203,14 +203,14 @@ export const DaySummaryCard: React.FC<DaySummaryCardProps> = ({
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     {isToday() && (
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                            <Flame size={14} fill="#fcd34d" color="#f59e0b" />
+                            <Flame size={14} fill="#f87171" color="#ef4444" />
                             <span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-primary)' }}>
                                 {streak.current}
                             </span>
                         </div>
                     )}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <Trophy size={13} fill="#fef08a" color="#eab308" />
+                        <Trophy size={13} fill="#fbbf24" color="#f59e0b" />
                         <span style={{ fontSize: '0.8rem', fontWeight: 400, color: 'var(--text-primary)' }}>
                             {streak.longest}
                         </span>

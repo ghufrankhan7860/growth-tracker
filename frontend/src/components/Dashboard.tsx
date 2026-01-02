@@ -569,13 +569,13 @@ export const Dashboard: React.FC = () => {
                             }}
                             style={{
                                 padding: '0.35rem 0.75rem',
-                                backgroundColor: 'var(--accent)',
-                                color: 'var(--text-primary)',
+                                backgroundColor: '#0095f6',
+                                color: '#ffffff',
                                 border: 'none',
                                 borderRadius: '4px',
                                 cursor: 'pointer',
                                 fontSize: '0.75rem',
-                                fontWeight: 400,
+                                fontWeight: 500,
                             }}
                         >
                             Done
