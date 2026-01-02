@@ -100,9 +100,10 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 className="card" 
                 style={{ 
                     width: '100%', 
-                    maxWidth: '400px', 
+                    maxWidth: '340px', 
                     position: 'relative',
                     animation: 'modalSlideIn 0.2s ease-out',
+                    padding: '1rem 1.25rem',
                 }}
             >
                 <style>{`
@@ -141,11 +142,12 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                     onClick={onClose}
                     style={{
                         position: 'absolute',
-                        top: '1rem',
-                        right: '1rem',
+                        top: '0.75rem',
+                        right: '0.75rem',
                         background: 'none',
                         color: 'var(--text-secondary)',
                         border: 'none',
+                        padding: '0.25rem',
                         transition: 'transform 0.15s ease, color 0.15s ease',
                     }}
                     onMouseEnter={(e) => {
@@ -157,16 +159,16 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         e.currentTarget.style.color = 'var(--text-secondary)';
                     }}
                 >
-                    <X size={24} />
+                    <X size={20} />
                 </button>
 
-                <h2 className="mb-4">Log {displayName}</h2>
+                <h3 style={{ marginBottom: '0.75rem', fontSize: '1.1rem' }}>Log {displayName}</h3>
 
                 {error && (
                     <div style={{ 
                         color: 'var(--error)', 
-                        marginBottom: '1rem', 
-                        fontSize: '0.875rem',
+                        marginBottom: '0.5rem', 
+                        fontSize: '0.8rem',
                         animation: 'shake 0.3s ease-in-out',
                     }}>
                         <style>{`
@@ -181,8 +183,17 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                 )}
 
                 <form onSubmit={handleSubmit}>
-                    <div className="input-group">
-                        <label className="input-label">Duration (Hours)</label>
+                    <div style={{ marginBottom: '0.75rem' }}>
+                        <label 
+                            className="input-label" 
+                            style={{ 
+                                fontSize: '0.8rem', 
+                                marginBottom: '0.35rem', 
+                                display: 'block' 
+                            }}
+                        >
+                            Hours
+                        </label>
                         <input
                             type="number"
                             step="0.25"
@@ -193,22 +204,27 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                             onChange={(e) => setHours(e.target.value)}
                             placeholder="e.g. 0.25"
                             autoFocus
+                            style={{ 
+                                padding: '0.6rem 0.75rem', 
+                                fontSize: '0.9rem',
+                                width: '100%',
+                            }}
                         />
                     </div>
 
                     {/* Note Field - Clean expandable design */}
-                    <div style={{ marginBottom: '1rem' }}>
+                    <div style={{ marginBottom: '0.75rem' }}>
                         <div 
                             style={{ 
                                 display: 'flex', 
                                 justifyContent: 'space-between', 
                                 alignItems: 'center',
-                                marginBottom: '0.5rem',
+                                marginBottom: '0.25rem',
                             }}
                         >
                             <label 
                                 className="input-label" 
-                                style={{ margin: 0, fontSize: '0.875rem' }}
+                                style={{ margin: 0, fontSize: '0.8rem' }}
                             >
                                 Note
                             </label>
@@ -237,21 +253,21 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                                 value={note}
                                 onChange={(e) => setNote(e.target.value.slice(0, 500))}
                                 onFocus={() => setIsNoteExpanded(true)}
-                                placeholder="Add a note about this activity..."
+                                placeholder="Add a note..."
                                 maxLength={500}
                                 style={{
                                     width: '100%',
-                                    padding: '0.75rem 1rem',
+                                    padding: '0.5rem 0.75rem',
                                     border: 'none',
                                     background: 'transparent',
                                     color: 'var(--text-primary)',
-                                    fontSize: '0.9rem',
+                                    fontSize: '0.85rem',
                                     fontFamily: 'inherit',
-                                    lineHeight: '1.6',
+                                    lineHeight: '1.5',
                                     resize: 'none',
                                     outline: 'none',
-                                    minHeight: isNoteExpanded ? '100px' : '60px',
-                                    maxHeight: isNoteExpanded ? '150px' : '60px',
+                                    minHeight: isNoteExpanded ? '80px' : '44px',
+                                    maxHeight: isNoteExpanded ? '120px' : '44px',
                                     transition: 'min-height 0.25s ease, max-height 0.25s ease',
                                     overflow: isNoteExpanded ? 'auto' : 'hidden',
                                 }}
@@ -288,11 +304,11 @@ export const ActivityModal: React.FC<ActivityModalProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex gap-4 mt-4">
-                        <button type="button" onClick={onClose} className="btn btn-outline" style={{ flex: 1 }}>
+                    <div className="flex gap-3" style={{ marginTop: '0.75rem' }}>
+                        <button type="button" onClick={onClose} className="btn btn-outline" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>
                             Cancel
                         </button>
-                        <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={loading}>
+                        <button type="submit" className="btn btn-primary" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }} disabled={loading}>
                             {loading ? 'Saving...' : 'Save'}
                         </button>
                     </div>
