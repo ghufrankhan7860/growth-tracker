@@ -108,13 +108,14 @@ func GetTileConfigByUsernameHandler(c *fiber.Ctx) error {
 
 	db := utils.GetDB()
 
-	// Get current user ID from context
+	// Get current user ID and trace ID from context
 	currentUserID, _ := c.Locals("user_id").(uint)
+	traceID, _ := c.Locals("trace_id").(string)
 
 	// First check if the user exists and is private
 	var user models.User
 	if err := db.Where("username = ?", req.Username).First(&user).Error; err != nil {
-		utils.LogWithUserID(currentUserID).Warnw("Tile config fetch failed - user not found", "target_username", req.Username)
+		utils.LogWithContext(traceID, currentUserID).Warnw("Tile config fetch failed - user not found", "target_username", req.Username)
 		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 			"success":    false,
 			"error":      "User not found",
@@ -124,7 +125,7 @@ func GetTileConfigByUsernameHandler(c *fiber.Ctx) error {
 
 	// Check if user is private and not the current user
 	if user.IsPrivate && user.ID != currentUserID {
-		utils.LogWithUserID(currentUserID).Debugw("Tile config access denied - private account", "target_username", req.Username)
+		utils.LogWithContext(traceID, currentUserID).Debugw("Tile config access denied - private account", "target_username", req.Username)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success":    false,
 			"error":      "This account is private",
@@ -163,6 +164,8 @@ func SaveTileConfigHandler(c *fiber.Ctx) error {
 		})
 	}
 
+	traceID, _ := c.Locals("trace_id").(string)
+
 	var req SaveTileConfigRequest
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -173,7 +176,7 @@ func SaveTileConfigHandler(c *fiber.Ctx) error {
 	}
 
 	if err := SaveTileConfig(userID, req.Config); err != nil {
-		utils.LogWithUserID(userID).Errorw("Tile config save failed", "error", err)
+		utils.LogWithContext(traceID, userID).Errorw("Tile config save failed", "error", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to save tile configuration",
@@ -181,7 +184,7 @@ func SaveTileConfigHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	utils.LogWithUserID(userID).Debug("Tile config saved")
+	utils.LogWithContext(traceID, userID).Debug("Tile config saved")
 	return c.JSON(fiber.Map{
 		"success": true,
 		"message": "Tile configuration saved successfully",

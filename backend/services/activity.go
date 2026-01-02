@@ -129,7 +129,8 @@ func CreateActivityHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	log := utils.LogWithUserID(userID)
+	traceID, _ := c.Locals("trace_id").(string)
+	log := utils.LogWithContext(traceID, userID)
 
 	if existing != nil {
 		existing.DurationHours = body.Hours
@@ -230,11 +231,12 @@ func GetActivityHandler(c *fiber.Ctx) error {
 
 	// Get current user ID from context
 	currentUserID, _ := c.Locals("user_id").(uint)
+	traceID, _ := c.Locals("trace_id").(string)
 
 	// Find user by username
 	var user models.User
 	if err := db.Where("username = ?", body.Username).First(&user).Error; err != nil {
-		utils.LogWithUserID(currentUserID).Warnw("Activity fetch failed - user not found", "target_username", body.Username)
+		utils.LogWithContext(traceID, currentUserID).Warnw("Activity fetch failed - user not found", "target_username", body.Username)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find user",
@@ -244,7 +246,7 @@ func GetActivityHandler(c *fiber.Ctx) error {
 
 	// Check if user is private and not the current user
 	if user.IsPrivate && user.ID != currentUserID {
-		utils.LogWithUserID(currentUserID).Debugw("Activity access denied - private account", "target_username", body.Username)
+		utils.LogWithContext(traceID, currentUserID).Debugw("Activity access denied - private account", "target_username", body.Username)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success":    false,
 			"error":      "This account is private",
@@ -288,6 +290,8 @@ func ToActivityDTOs(in []models.Activity) []ActivityDTO {
 }
 
 func GetUsersHandler(c *fiber.Ctx) error {
+	traceID, _ := c.Locals("trace_id").(string)
+	currentUserID, _ := c.Locals("user_id").(uint)
 
 	var body GetUsersRequest
 	if err := c.BodyParser(&body); err != nil {
@@ -303,14 +307,14 @@ func GetUsersHandler(c *fiber.Ctx) error {
 	// find user by username with ILIKE (include private users - they'll be marked as private in response)
 	result := db.Where("username ILIKE ?", "%"+body.Username+"%").Find(&users)
 	if result.Error != nil {
-		utils.Sugar.Errorw("User search failed", "query", body.Username, "error", result.Error)
+		utils.LogWithContext(traceID, currentUserID).Errorw("User search failed", "query", body.Username, "error", result.Error)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find users",
 			"error_code": "FETCH_FAILED",
 		})
 	}
-	utils.Sugar.Debugw("User search completed", "query", body.Username, "found", len(users))
+	utils.LogWithContext(traceID, currentUserID).Debugw("User search completed", "query", body.Username, "found", len(users))
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"success": true,
 		"data":    SanitizeUsers(users),

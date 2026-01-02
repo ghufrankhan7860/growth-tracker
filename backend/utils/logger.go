@@ -219,3 +219,38 @@ func LogWithUserID(userID uint) *zap.SugaredLogger {
 	}
 	return Sugar
 }
+
+// LogWithTrace returns a sugared logger with trace_id field
+func LogWithTrace(traceID string) *zap.SugaredLogger {
+	if traceID != "" {
+		return Sugar.With("trace_id", traceID)
+	}
+	return Sugar
+}
+
+// LogWithContext returns a sugared logger with trace_id and user_id from Fiber context
+func LogWithContext(traceID string, userID uint) *zap.SugaredLogger {
+	fields := []interface{}{}
+	if traceID != "" {
+		fields = append(fields, "trace_id", traceID)
+	}
+	if userID > 0 {
+		fields = append(fields, "user_id", userID)
+	}
+	return Sugar.With(fields...)
+}
+
+// LogWithFullContext returns a sugared logger with trace_id, user_id, and username
+func LogWithFullContext(traceID string, userID uint, username string) *zap.SugaredLogger {
+	fields := []interface{}{}
+	if traceID != "" {
+		fields = append(fields, "trace_id", traceID)
+	}
+	if userID > 0 {
+		fields = append(fields, "user_id", userID)
+	}
+	if username != "" {
+		fields = append(fields, "username", username)
+	}
+	return Sugar.With(fields...)
+}

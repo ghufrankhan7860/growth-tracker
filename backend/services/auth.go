@@ -140,7 +140,8 @@ func LoginHandler(c *fiber.Ctx) error {
 
 	token, exp, err := utils.GenerateToken(user)
 
-	log := utils.LogWithUser(user.ID, user.Username)
+	traceID, _ := c.Locals("trace_id").(string)
+	log := utils.LogWithFullContext(traceID, user.ID, user.Username)
 
 	if err != nil {
 		log.Errorw("Token generation failed", "error", err)
@@ -270,7 +271,8 @@ func UpdateUsernameHandler(c *fiber.Ctx) error {
 	}
 
 	// Update username in database
-	log := utils.LogWithUserID(userID)
+	traceID, _ := c.Locals("trace_id").(string)
+	log := utils.LogWithContext(traceID, userID)
 	if err := UpdateUsername(userID, newUsername); err != nil {
 		log.Warnw("Username update failed", "new_username", newUsername, "error", err)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -311,7 +313,8 @@ func UpdatePrivacyHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	log := utils.LogWithUserID(userID)
+	traceID, _ := c.Locals("trace_id").(string)
+	log := utils.LogWithContext(traceID, userID)
 	if err := UpdatePrivacy(userID, body.IsPrivate); err != nil {
 		log.Errorw("Privacy update failed", "error", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -341,7 +344,8 @@ func GetPrivacyHandler(c *fiber.Ctx) error {
 
 	isPrivate, err := GetUserPrivacy(userID)
 	if err != nil {
-		utils.LogWithUserID(userID).Errorw("Failed to get privacy setting", "error", err)
+		traceID, _ := c.Locals("trace_id").(string)
+		utils.LogWithContext(traceID, userID).Errorw("Failed to get privacy setting", "error", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to get privacy setting",
@@ -408,7 +412,8 @@ func ChangePasswordHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	log := utils.LogWithUser(userID, user.Username)
+	traceID, _ := c.Locals("trace_id").(string)
+	log := utils.LogWithFullContext(traceID, userID, user.Username)
 
 	// Verify current password
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(body.CurrentPassword)); err != nil {

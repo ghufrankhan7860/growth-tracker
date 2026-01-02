@@ -128,12 +128,13 @@ func GetStreakHandler(c *fiber.Ctx) error {
 	streak := models.Streak{}
 	user := models.User{}
 
-	// Get current user ID from context first
+	// Get current user ID and trace ID from context
 	currentUserID, _ := c.Locals("user_id").(uint)
+	traceID, _ := c.Locals("trace_id").(string)
 
 	result := db.Where("username = ?", body.Username).First(&user)
 	if result.Error != nil {
-		utils.LogWithUserID(currentUserID).Warnw("Streak fetch failed - user not found", "target_username", body.Username)
+		utils.LogWithContext(traceID, currentUserID).Warnw("Streak fetch failed - user not found", "target_username", body.Username)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find user",
@@ -143,7 +144,7 @@ func GetStreakHandler(c *fiber.Ctx) error {
 
 	// Check if user is private and not the current user
 	if user.IsPrivate && user.ID != currentUserID {
-		utils.LogWithUserID(currentUserID).Debugw("Streak access denied - private account", "target_username", body.Username)
+		utils.LogWithContext(traceID, currentUserID).Debugw("Streak access denied - private account", "target_username", body.Username)
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success":    false,
 			"error":      "This account is private",
@@ -153,7 +154,7 @@ func GetStreakHandler(c *fiber.Ctx) error {
 
 	result = db.Where("user_id = ? AND activity_date = ?", user.ID, date).Last(&streak)
 	if result.Error != nil {
-		utils.LogWithUserID(user.ID).Debugw("Streak not found", "username", body.Username, "date", body.Date)
+		utils.LogWithContext(traceID, user.ID).Debugw("Streak not found", "username", body.Username, "date", body.Date)
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"success":    false,
 			"error":      "Failed to find streak",
