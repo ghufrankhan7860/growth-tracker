@@ -181,7 +181,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         justifyContent: 'center',
                                         gap: isSearchOpen ? '0.5rem' : '0',
                                         padding: isSearchOpen ? '0.5rem 1rem' : '0',
-                                        backgroundColor: 'var(--bg-secondary)',
+                                        backgroundColor: isSearchOpen ? 'var(--bg-secondary)' : 'var(--icon-btn-bg)',
                                         borderRadius: '9999px',
                                         border: isSearchFocused && isSearchOpen ? '1px solid var(--accent)' : '1px solid transparent',
                                         cursor: isSearchOpen ? 'text' : 'pointer',
@@ -195,7 +195,7 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                 >
                                     <Search 
                                         size={16} 
-                                        color="var(--text-secondary)" 
+                                        color="var(--icon-btn-color)" 
                                         style={{ flexShrink: 0 }}
                                     />
                                     <input
@@ -350,8 +350,8 @@ export const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) =>
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        backgroundColor: 'var(--bg-secondary)',
-                                        color: 'var(--text-secondary)',
+                                        backgroundColor: 'var(--icon-btn-bg)',
+                                        color: 'var(--icon-btn-color)',
                                         cursor: 'pointer',
                                         width: '36px',
                                         height: '36px'
