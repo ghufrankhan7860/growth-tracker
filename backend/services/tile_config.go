@@ -20,13 +20,13 @@ func GetTileConfig(userID uint) (*models.TileConfig, error) {
 // GetTileConfigByUsername fetches the tile configuration for a user by username
 func GetTileConfigByUsername(username string) (*models.TileConfig, error) {
 	db := utils.GetDB()
-	
+
 	// First get the user ID from username
 	var user models.User
 	if err := db.Where("username = ?", username).First(&user).Error; err != nil {
 		return nil, err
 	}
-	
+
 	var config models.TileConfig
 	result := db.Where("user_id = ?", user.ID).First(&config)
 	if result.Error != nil {

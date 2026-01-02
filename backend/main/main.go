@@ -77,10 +77,10 @@ func main() {
 	defer c.Stop()
 
 	app := fiber.New()
-	
+
 	// Request logging middleware
 	app.Use(services.RequestLoggerMiddleware)
-	
+
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",   // allow all origins
 		AllowMethods:     "*",   // allow all HTTP methods
