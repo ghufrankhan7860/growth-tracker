@@ -832,42 +832,19 @@ const UsernameDialog: React.FC<{
                     )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        style={{
-                            padding: '0.625rem 1.25rem',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border-strong)',
-                            backgroundColor: 'transparent',
-                            color: 'var(--text-primary)',
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                            cursor: 'pointer',
-                            flex: 1
-                        }}
-                    >
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
+                    <button type="button" onClick={onClose} className="btn btn-outline" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading}
+                        className="btn btn-primary"
                         style={{
-                            padding: '0.625rem 1.25rem',
-                            borderRadius: '8px',
-                            border: 'none',
-                            backgroundColor: '#0095f6',
-                            color: '#ffffff',
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.5rem',
-                            opacity: isLoading ? 0.7 : 1,
-                            flex: 1
+                            flex: 1,
+                            padding: '0.6rem',
+                            fontSize: '0.85rem',
+                            opacity: isLoading ? 0.7 : 1
                         }}
                     >
                         {isLoading ? 'Saving...' : 'Save'}
@@ -1033,39 +1010,19 @@ const PasswordDialog: React.FC<{
                     )}
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        style={{
-                            padding: '0.625rem 1.25rem',
-                            borderRadius: '8px',
-                            border: '1px solid var(--border-strong)',
-                            backgroundColor: 'transparent',
-                            color: 'var(--text-primary)',
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                            cursor: 'pointer',
-                            flex: 1
-                        }}
-                    >
+                <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.75rem' }}>
+                    <button type="button" onClick={onClose} className="btn btn-outline" style={{ flex: 1, padding: '0.6rem', fontSize: '0.85rem' }}>
                         Cancel
                     </button>
                     <button
                         type="submit"
                         disabled={isLoading}
+                        className="btn btn-primary"
                         style={{
-                            padding: '0.625rem 1.25rem',
-                            borderRadius: '8px',
-                            border: 'none',
-                            backgroundColor: '#0095f6',
-                            color: '#ffffff',
-                            fontSize: '0.875rem',
-                            fontWeight: 500,
-                            cursor: 'pointer',
-                            opacity: isLoading ? 0.7 : 1,
                             flex: 1,
-                            textAlign: 'center'
+                            padding: '0.6rem',
+                            fontSize: '0.85rem',
+                            opacity: isLoading ? 0.7 : 1
                         }}
                     >
                         {isLoading ? 'Saving...' : 'Update'}
